@@ -1212,9 +1212,9 @@ function doStuff() {
 
     document.addEventListener('DOMNodeInserted', function (event) {
       try {
-        var cname, elmt = event.target;//console.log (elmt.tagName+":"+elmt.className);
+        var cname, elmt = event.target;
         if (!(/(DIV|LI)/.test(elmt.tagName))) return;
-        if (cname = elmt.className) {console.log (cname);
+        if (cname = elmt.className) {
           if (
             (/dashboard|AppContainer/.test(cname))
           ) {
@@ -1249,15 +1249,14 @@ function doStuff() {
 
 function doExec() {
   try {
-    if (window.chrome && (unsafeWindow == window)) {
+    if ((typeof unsafeWindow !== 'undefined') && (unsafeWindow != window)) {
+      TWRT.UW = unsafeWindow;
+    } else {
       TWRT.UW = (function() {
         var el = document.createElement('a');
         el.setAttribute('onclick', 'return window;');
         return el.onclick();
       }());
-    }
-    else if (typeof unsafeWindow !== 'undefined') {
-      TWRT.UW = unsafeWindow;
     }
 
     if (typeof TWRT.UW.jQuery === 'undefined') {
