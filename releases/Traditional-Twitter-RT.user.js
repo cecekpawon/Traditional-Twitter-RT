@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.3
+// @version        5.4
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @grant          none
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 const yodUpdate = {
-  script_version : '5.3',
+  script_version : '5.4',
   script_url : 'https://github.com/cecekpawon/Traditional-Twitter-RT'
 }
 
@@ -24,7 +24,7 @@ TWRT.debug = 0;
 TWRT.GRID = false;
 
 // GLOBAL Variable
-TWRT.setting_def = { yodOption: 0, yodRT: "RT", yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 1, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0 };
+TWRT.setting_def = { yodOption: 0, yodRT: "RT", yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 1, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0 };
 TWRT.setting = {};
 
 TWRT.css = '\
@@ -69,6 +69,7 @@ div[id^=yod_tw_id] {color:red!important;font-size: 11px!important;background-col
 .more-tweet-actions .yodInlineButton a {text-align: left!important;margin-left:0!important;}\
 .tweet-actions .yodInlineButton:first-child a {margin-left:0!important}\
 .tweet-actions .yodInlineButton.yodInlineButton_last a {margin-right:10px!important}\
+.yod_insta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
 ';
 
 function getValue(key, TW) {
@@ -130,7 +131,7 @@ function doyodGetNumOpt(key, def) {
 }
 
 function o_debug(str) {
-  if (TWRT.debug) console.log(str.toString() || '');
+  if (TWRT.debug) console.log(str || '');
 }
 
 function yodfixInt(str) {
@@ -212,7 +213,7 @@ function re_BR(s) {
   if (TWRT.setting['yodKeepBR']) {
     s = s.replace(/(\r\n|\r|\n)/gmi, "<br />");
   }
-  
+
   return s;
 }
 
@@ -467,6 +468,11 @@ function translate_link(e) {
     //var decoded2 = deEntity(unescape(el.text().trim()));
     var decoded2 = unescape(el.text().trim());
 
+    // ISTANA-GERAAMMM
+    if (doyodGetBoolOpt('yodInstagram')) {
+      parse_instagram(e);
+    }
+
     // is_entity / expanded links
     if (mod || (decoded !== decoded2)) {
       //e.html(deEntity(el.html()));
@@ -475,6 +481,36 @@ function translate_link(e) {
   }
 
   el.empty();
+}
+
+function parse_instagram(e) {
+  var insta_a = e.text().trim().match(/https?:\/\/(instagr.\am|instagram\.com)\/p\/([^\/\s]+)/ig);
+  for (var insta_i in insta_a) {
+    var insta_u = insta_a[insta_i];
+    o_debug(insta_u);
+    insta_u = "https://api.instagram.com/oembed?url=" + insta_u;
+    TWRT.$.ajax({
+      url: insta_u,
+      dataType: "jsonp",
+      success: function (data) {
+        o_debug(data);
+        var insta_t;
+        if (insta_t = data.thumbnail_url) {
+         insta_t = insta_t
+          .replace(/https?/i, 'https')
+          .replace(/\-ak\-/i, '-')
+          .replace(/photos\-.*instagram.com/i, 'scontent-b.cdninstagram.com');
+          e.append(
+            TWRT.$('<div/>', {class: 'yod_insta parsed'})
+              .append(TWRT.$('<img/>', {src: insta_t}))
+          );
+        }
+      },
+      error: function () {
+        o_debug("Eekk.. instagram url :(((");
+      }
+    });
+  }
 }
 
 function yodShowTweetBox(s, c, RT) {
@@ -827,6 +863,7 @@ function yod_goDiag(e, re) {
           .append(toCB('yodKeepBR', 'Keep extra linebreak (new empty line space)', 'Keep Linebreak'))
           .append(toCB('yodBodyBG', 'Keep User custom Background Profile', 'BG Profile'))
           .append(toCB('yodPhotoHeight', 'Show Photos in full height', 'Photo Height'))
+          .append(toCB('yodInstagram', 'Show Instagram Card', 'Instagram'))
           .append(
             TWRT.$('<div/>', {class: 'tx_muted'})
             .append(TWRT.$('<textarea/>', {id: 'yodMuteLists', rows: 4, title: 'Muted lists (ID comma-separated, goto target [popup] profile)'}).val(v_valMuted))
@@ -1174,7 +1211,7 @@ function doCSS_dyn() {
     str += '.js-media-container .FlexEmbed:before{padding:0!important;}';
     str += '.js-media-container [data-card-type="photo"] a,.js-media-container [data-card-type="photo"] div{position:inherit;max-height:inherit!important;height:auto!important;width:100%!important;}';
     str += '.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
-    str += '.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}'; 
+    str += '.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
   }
 
   TWRT.$('#yod_RT_CSS_dyn').html(str);
