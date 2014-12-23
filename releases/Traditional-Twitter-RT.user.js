@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4
+// @version        5.4.1
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @grant          none
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 const yodUpdate = {
-  script_version : '5.4',
+  script_version : '5.4.1',
   script_url : 'https://github.com/cecekpawon/Traditional-Twitter-RT'
 }
 
@@ -69,7 +69,7 @@ div[id^=yod_tw_id] {color:red!important;font-size: 11px!important;background-col
 .more-tweet-actions .yodInlineButton a {text-align: left!important;margin-left:0!important;}\
 .tweet-actions .yodInlineButton:first-child a {margin-left:0!important}\
 .tweet-actions .yodInlineButton.yodInlineButton_last a {margin-right:10px!important}\
-.yod_insta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
+.yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
 ';
 
 function getValue(key, TW) {
@@ -484,7 +484,7 @@ function translate_link(e) {
 }
 
 function parse_instagram(e) {
-  var insta_a = e.text().trim().match(/https?:\/\/(instagr.\am|instagram\.com)\/p\/([^\/\s]+)/ig);
+  var insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
   for (var insta_i in insta_a) {
     var insta_u = insta_a[insta_i];
     o_debug(insta_u);
@@ -501,7 +501,7 @@ function parse_instagram(e) {
           .replace(/\-ak\-/i, '-')
           .replace(/photos\-.*instagram.com/i, 'scontent-b.cdninstagram.com');
           e.append(
-            TWRT.$('<div/>', {class: 'yod_insta parsed'})
+            TWRT.$('<div/>', {class: 'yodInsta parsed'})
               .append(TWRT.$('<img/>', {src: insta_t}))
           );
         }
