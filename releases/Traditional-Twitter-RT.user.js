@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.1
+// @version        5.4.2
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @grant          none
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 const yodUpdate = {
-  script_version : '5.4.1',
+  script_version : '5.4.2',
   script_url : 'https://github.com/cecekpawon/Traditional-Twitter-RT'
 }
 
@@ -24,7 +24,7 @@ TWRT.debug = 0;
 TWRT.GRID = false;
 
 // GLOBAL Variable
-TWRT.setting_def = { yodOption: 0, yodRT: "RT", yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 1, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0 };
+TWRT.setting_def = { yodOption: 0, yodRT: "RT", yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0 };
 TWRT.setting = {};
 
 TWRT.css = '\
@@ -56,14 +56,14 @@ span.geo-text{width:auto!important;}\
 .yodSpace_ireply_wrapper > a {display:inline-table;margin: 0 2px;}\
 .forme {background-color: rgba(255,255,0,.3);}\
 .debug {border:10px solid red!important;}\
-div[id^=yod_tw_id] {color:red!important;font-size: 11px!important;background-color: black!important;display: inline!important;padding: 1px 3px!important;}\
-#yodAdvTopEl {color:#66757F;width: 10px; margin: 10px; cursor: pointer; float:left!important;}\
+div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-color:black!important;display:inline!important;padding:1px 3px!important;}\
+#yodAdvTopEl {color:#66757F;width:10px;margin:10px;cursor:pointer;float:left!important;}\
 #yodAdvTopEl > div {height: 13px;}\
 .btn.yod-rt {float:left!important;}\
 .tx_muted {margin-top: 10px;width: 100%;}\
 .tx_muted textarea {width: 100%;resize:vertical;}\
 .yodActions {}\
-.yodActions_grid {float: left; margin-right: 31px;}\
+.yodActions_grid {float: left; margin-right:31px;width:100%!important;}\
 .tweet-inverted .yodActions .sm-more {background-position: -280px -250px!important;}\
 .yodmute_w {padding-left: 20px!important;}\
 .more-tweet-actions .yodInlineButton a {text-align: left!important;margin-left:0!important;}\
@@ -364,10 +364,11 @@ function yod_render(newtweet) {
         el = entry.find('.js-actions .dropdown li').first();
 
         var yodActions_class = 'yodActions';
+        /*
         if (TWRT.GRID) {
           yodActions_class += ' yodActions_grid';
         }
-
+        */
         TWRT.$('<li/>', {class: 'yodInlineButton yodActFB' + yodActions_class})
           .append(
             TWRT.$('<a/>', {id: 'FB_' + data_item_id, title: 'Share to facebook', role: 'button', html: '<b>FB Share</b>', href: getFB(entry), target: '_blank'})
@@ -571,7 +572,9 @@ function yod_rtDiag(e) {
       .html('RT')
       .attr('class', 'btn yod-rt')
       .click(function(){
-        yod_toRT(elx);
+        if (elx.length) {
+          yod_toRT(elx.addClass('yodDone').parent());
+        }
       })
       .appendTo(target.parent());
   } else {
@@ -648,7 +651,7 @@ function embedMute(elx) {
   var el, s, tw_id, u, popup = elx, id = 'yodMuteButtPop';
   if (!elx) { elx = TWRT.$('body'); id = 'yodMuteButt'; }
 
-  TWRT.GRID = elExists('.GridTimeline') ? true : false;
+  //TWRT.GRID = elExists('.GridTimeline') ? true : false;
 
   if (s = yod_isProfile(elx)) {
 
