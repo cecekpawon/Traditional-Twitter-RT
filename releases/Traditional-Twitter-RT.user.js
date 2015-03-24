@@ -4,22 +4,22 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.2
+// @version        5.4.3
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
+// @require        http://code.jquery.com/jquery-latest.js
 // @grant          none
 // @match          https://twitter.com/*
 // @run-at         document-start
 // ==/UserScript==
 
 const yodUpdate = {
-  script_version : '5.4.2',
+  script_version : '5.4.3',
   script_url : 'https://github.com/cecekpawon/Traditional-Twitter-RT'
 }
 
 var TWRT = {};
 TWRT.$ = null;
-TWRT.UW = null;
 TWRT.debug = 0;
 TWRT.GRID = false;
 
@@ -385,7 +385,7 @@ function yod_render(newtweet) {
           ).insertBefore(el);
 
         TWRT.$(document).on('click', 'a#FB_' + data_item_id, function() {
-          TWRT.UW.open(this.href);
+          window.open(this.href);
           return false;
         });
 
@@ -495,12 +495,15 @@ function parse_instagram(e) {
       dataType: "jsonp",
       success: function (data) {
         o_debug(data);
-        var insta_t;
+        var insta_t, insta_tmp;
         if (insta_t = data.thumbnail_url) {
-         insta_t = insta_t
-          .replace(/https?/i, 'https')
-          .replace(/\-ak\-/i, '-')
-          .replace(/photos\-.*instagram.com/i, 'scontent-b.cdninstagram.com');
+          insta_t = insta_t.replace(/https?/i, 'https');
+          insta_tmp = new RegExp(/(photos\-.*instagram\.com\/+)/i);
+          if (insta_t.match(insta_tmp)) {
+            insta_t = insta_t
+              .replace(insta_tmp, 'scontent-b.cdninstagram.com')
+              .replace(/\-ak\-/i, '-');
+          }
           e.append(
             TWRT.$('<div/>', {class: 'yodInsta parsed'})
               .append(TWRT.$('<img/>', {src: insta_t}))
@@ -508,7 +511,7 @@ function parse_instagram(e) {
         }
       },
       error: function () {
-        o_debug("Eekk.. instagram url :(((");
+        o_debug("Eekk.. Error retrieving instagram url :(((");
       }
     });
   }
@@ -1289,21 +1292,11 @@ function doStuff() {
 
 function doExec() {
   try {
-    if ((typeof unsafeWindow !== 'undefined') && (unsafeWindow != window)) {
-      TWRT.UW = unsafeWindow;
-    } else {
-      TWRT.UW = (function() {
-        var el = document.createElement('a');
-        el.setAttribute('onclick', 'return window;');
-        return el.onclick();
-      }());
-    }
-
-    if (typeof TWRT.UW.jQuery === 'undefined') {
-      setTimeout(doExec, 200);
-    } else {
-      TWRT.$ = TWRT.UW.jQuery;
+    if (jQuery) {
+      TWRT.$ = jQuery;
       doStuff();
+    } else {
+      //
     }
   } catch (e) {}
 }
