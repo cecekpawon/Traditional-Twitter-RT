@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.3
+// @version        5.4.4
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        http://code.jquery.com/jquery-latest.js
@@ -13,15 +13,9 @@
 // @run-at         document-start
 // ==/UserScript==
 
-const yodUpdate = {
-  script_version : '5.4.3',
-  script_url : 'https://github.com/cecekpawon/Traditional-Twitter-RT'
-}
-
 var TWRT = {};
 TWRT.$ = null;
 TWRT.debug = 0;
-TWRT.GRID = false;
 
 // GLOBAL Variable
 TWRT.setting_def = { yodOption: 0, yodRT: "RT", yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0 };
@@ -70,6 +64,7 @@ div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-colo
 .tweet-actions .yodInlineButton:first-child a {margin-left:0!important}\
 .tweet-actions .yodInlineButton.yodInlineButton_last a {margin-right:10px!important}\
 .yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
+#yodRTCopyReply a:not(:first-child) {margin-left:5px;}\
 ';
 
 function getValue(key, TW) {
@@ -364,24 +359,25 @@ function yod_render(newtweet) {
         el = entry.find('.js-actions .dropdown li').first();
 
         var yodActions_class = 'yodActions';
-        /*
-        if (TWRT.GRID) {
-          yodActions_class += ' yodActions_grid';
-        }
-        */
+
         TWRT.$('<li/>', {class: 'yodInlineButton yodActFB' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'FB_' + data_item_id, title: 'Share to facebook', role: 'button', html: '<b>FB Share</b>', href: getFB(entry), target: '_blank'})
+            TWRT.$('<a/>', {id: 'FB_' + data_item_id, title: 'Share to facebook', role: 'button', html: 'FB Share', href: getFB(entry), target: '_blank'})
           ).insertBefore(el);
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodActRT' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'RT_' + data_item_id, title: 'Trad RT', role: 'button', html: '<b>Trad RT</b>', href: '#'})
+            TWRT.$('<a/>', {id: 'RT_' + data_item_id, title: 'Trad RT', role: 'button', html: 'Trad RT', href: '#'})
+          ).insertBefore(el);
+
+        TWRT.$('<li/>', {class: 'yodInlineButton yodActRT' + yodActions_class})
+          .append(
+            TWRT.$('<a/>', {id: 'RT_URL_' + data_item_id, title: 'RT with URL', role: 'button', html: 'RT URL', href: '#'})
           ).insertBefore(el);
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodInlineButton_last yodActStalking' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'STALKING_' + data_item_id, title: 'Stalking', role: 'button', html: '<b>Stalking</b>', href: '#'})
+            TWRT.$('<a/>', {id: 'STALKING_' + data_item_id, title: 'Stalking', role: 'button', html: 'Stalking', href: '#'})
           ).insertBefore(el);
 
         TWRT.$(document).on('click', 'a#FB_' + data_item_id, function() {
@@ -391,6 +387,11 @@ function yod_render(newtweet) {
 
         TWRT.$(document).on('click', 'a#RT_' + data_item_id, function() {
           yod_toRT(TWRT.$(this));
+          return false;
+        });
+
+        TWRT.$(document).on('click', 'a#RT_URL_' + data_item_id, function() {
+          yod_toRT(TWRT.$(this), true);
           return false;
         });
 
@@ -486,6 +487,7 @@ function translate_link(e) {
 
 function parse_instagram(e) {
   var insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
+
   for (var insta_i in insta_a) {
     var insta_u = insta_a[insta_i];
     o_debug(insta_u);
@@ -528,12 +530,13 @@ function yodShowTweetBox(s, c, RT) {
 
     toClick(nt);
 
-    if (txa = elExists('#global-tweet-dialog .tweet-box:visible, #tweet_dialog .twitter-anywhere-tweet-box-editor:visible'))
+    if (txa = elExists('#global-tweet-dialog .tweet-box:visible, #tweet_dialog .twitter-anywhere-tweet-box-editor:visible')) {
       txa.html(content).focus().change();
+    }
   }
 }
 
-function yod_toRT(e) {
+function yod_toRT(e, cpURL) {
   var entry, screen_name, RT, parent;
 
   entry = TWRT.$(e).find('.yodDone');
@@ -546,13 +549,31 @@ function yod_toRT(e) {
 
   if (!(screen_name = entry.attr('data-screen-name'))) return;
   if (RT = getRTby(entry)) RT = RT.uname;
+
+  var mentions = entry.attr('data-mentions'),
+    permalink = 'https://twitter.com' + entry.attr('data-permalink-path');
+
   if (!(entry = elExists('[class*=js-tweet-text]', entry))) return;
 
-  entry2 = entry.clone();
-  translate_emoji(entry2);
+  if (cpURL) {
+    entry = '';
+    if (mentions) {
+      mentions = mentions.split(/\s/);
+      for (var i in mentions) {
+        entry += ' @' + mentions[i];
+      }
+    }
 
-  entry = entry2.eq(0).text();
+    entry = permalink + entry;
+  } else {
+    entry2 = entry.clone();
+    translate_emoji(entry2);
+
+    entry = entry2.eq(0).text();
+  }
+
   entry = stripUser(entry, false, TWRT.setting['yodKeepBR']);
+
   yodShowTweetBox(screen_name, re_BR(entry), RT);
 }
 
@@ -590,8 +611,9 @@ function cleanMuteLists(str) {
 }
 
 function readMuteLists(target_str, a, save) {
-  var str = cleanMuteLists(readSetting(target_str).toString()) || '';
-  var arr = yodUnique(str.split(','));
+  var str = cleanMuteLists(readSetting(target_str).toString()) || '',
+    arr = yodUnique(str.split(','));
+
   if (save) saveSetting(target_str, arr.join(','));
   return a ? arr : str;
 }
@@ -605,15 +627,16 @@ function prettyMuteLists(target_str, str, el) {
 }
 
 function checkMute(id, u, e, check) {
-  target_str = 'yodMuteLists';
-  var mutesx = readMuteLists(target_str, 1);
-  var el, x, b = mutesx;
+  var target_str = 'yodMuteLists',
+    mutesx = readMuteLists(target_str, 1), el, x, b = mutesx;
+
   for (var i in mutesx) {
     var s = mutesx[i];
     if (!s.match(/[0-9]{8,}/)) b.splice(mutesx.indexOf(s.trim()), 1);
   }
 
   var s1 = 'M'; var s2 = 'Mute this user';
+
   if (x = yodInArray(id, b.join(','))) {
     if (check) {
       s1 = 'U' + s1; s2 = 'UN-' + s2;
@@ -633,6 +656,7 @@ function checkMute(id, u, e, check) {
     e = table;
     s1 = '<strong>' + s1 + '</strong>';
   }
+
   TWRT.$(e).find('.yodmutelabel').html(str);
   TWRT.$(e).find('.yodmutevalue').html(s1);
   TWRT.$(e).attr('title', s2 + str);
@@ -652,9 +676,11 @@ function yod_BodyBG() {
 
 function embedMute(elx) {
   var el, s, tw_id, u, popup = elx, id = 'yodMuteButtPop';
-  if (!elx) { elx = TWRT.$('body'); id = 'yodMuteButt'; }
 
-  //TWRT.GRID = elExists('.GridTimeline') ? true : false;
+  if (!elx) { 
+    elx = TWRT.$('body'); 
+    id = 'yodMuteButt'; 
+  }
 
   if (s = yod_isProfile(elx)) {
 
@@ -667,6 +693,7 @@ function embedMute(elx) {
         u = tw_id + ' (' + s.attr('data-screen-name') + ')';
 
         var e_mute_w, e_mute;
+
         if (profile_grid) {
           e_mute_w = TWRT.$('<li/>', {'class': 'ProfileNav-item', id: id});
           e_mute = TWRT.$('<a/>', {
@@ -742,7 +769,9 @@ function toCB(id, t, l) {
           break;
       }
     });
+ 
   if (doyodGetBoolOpt(id)) cb.attr('checked', 'checked');
+ 
   return TWRT.$('<div/>')
     .append(
       TWRT.$('<label/>', {title: t, for: id, html: l, class: 'checkbox'})
@@ -751,7 +780,8 @@ function toCB(id, t, l) {
 }
 
 function yod_goDiag(e, re) {
-  var el, e2, elx, target, txa, rep, placed/*, isreply*/;
+  var el, e2, elx, target, txa, rep, placed;
+
   elx = TWRT.$(re || e.currentTarget);
 
   if (elx[0].tagName) {
@@ -766,12 +796,23 @@ function yod_goDiag(e, re) {
         if (!el) {
           // Inject Copy Reply button
           var div2 = TWRT.$('<div/>', {id: 'yodRTCopyReply'});
-          var a = TWRT.$('<a/>', {class: 'btn', html: 'Copy Reply', href: 'javascript:void(0);', title: 'Copy current text reply'})
+
+          // Copy reply
+          var a = TWRT.$('<a/>', {class: 'btn', html: '[c] Reply', href: 'javascript:void(0);', title: 'Copy current text reply'})
           .click(function() {
             if (!(source = elExists('[data-tweet-id]', elx))) return;
             toReply('global', source);
             return false;
           }).appendTo(div2);
+
+          // Copy reply URL
+          a = TWRT.$('<a/>', {class: 'btn', html: '[c] URL', href: 'javascript:void(0);', title: 'Copy current URL'})
+          .click(function() {
+            if (!(source = elExists('[data-tweet-id]', elx))) return;
+            toReply('global', source, true);
+            return false;
+          }).appendTo(div2);
+
           placed.append(div2);
         } else
           el.removeClass('yodHide');
@@ -781,39 +822,30 @@ function yod_goDiag(e, re) {
     }
 
     // Inject Our Space to Target
-    var div = TWRT.$('<div/>', {id: 'yodSpace'});
-    var div2 = TWRT.$('<div/>', {id: 'yodRTOption'});
+    var div = TWRT.$('<div/>', {id: 'yodSpace'}),
+      div2 = TWRT.$('<div/>', {id: 'yodRTOption'});
 
     // Fit 140 - Cut Text to 140 char length
-    var div3 = TWRT.$('<div/>');
-    var a = TWRT.$('<a/>', {id: 'yodRTFit140', class: 'btn', html: 'Fit 140', href: 'javascript:void(0);', title: 'Fit 140 chars'})
+    var div3 = TWRT.$('<div/>'), 
+    a = TWRT.$('<a/>', {id: 'yodRTFit140', class: 'btn', html: '140', href: 'javascript:void(0);', title: 'Fit 140 chars'})
     .click(function() {
       doyodRTFit140('global');
       return false;
     }).appendTo(div3);
     div2.append(div3);
 
-    // Clear TweetBox
+    // Clean - Freeup space
     div3 = TWRT.$('<div/>');
-    a = TWRT.$('<a/>', {id: 'yodRTClear', class: 'btn', html: 'x', href: 'javascript:void(0);', title: 'Clear TweetBox'})
-    .click(function() {
-      doyodRTClean('global', true);
-      return false;
-    }).appendTo(div3);
-    div2.append(div3);
-
-    // Clean - freeup space
-    div3 = TWRT.$('<div/>');
-    a = TWRT.$('<a/>', {id: 'yodRTClean', class: 'btn', html: 'Clean', href: 'javascript:void(0);', title: 'Free Up Space'})
+    a = TWRT.$('<a/>', {id: 'yodRTClean', class: 'btn', html: '[x]', href: 'javascript:void(0);', title: 'Free Up Space'})
     .click(function() {
       doyodRTClean('global');
       return false;
     }).appendTo(div3);
     div2.append(div3);
 
-    // Clean - my username
+    // Clean - Our username
     div3 = TWRT.$('<div/>');
-    a = TWRT.$('<a/>', {id: 'yodCleanMine', class: 'btn', html: 'Clean @', href: 'javascript:void(0);', title: 'Clean my username'})
+    a = TWRT.$('<a/>', {id: 'yodCleanMine', class: 'btn', html: '[x] @', href: 'javascript:void(0);', title: 'Clean my username'})
     .click(function() {
       doyodMineClean('global');
       return false;
@@ -822,7 +854,7 @@ function yod_goDiag(e, re) {
 
     // Clean - Hashtags
     div3 = TWRT.$('<div/>');
-    a = TWRT.$('<a/>', {id: 'yodHashtagsClean', class: 'btn', html: 'Clean #', href: 'javascript:void(0);', title: 'Clean Hashtags'})
+    a = TWRT.$('<a/>', {id: 'yodHashtagsClean', class: 'btn', html: '[x] #', href: 'javascript:void(0);', title: 'Clean Hashtags'})
     .click(function() {
       doyodHashtagsClean('global');
       return false;
@@ -832,13 +864,13 @@ function yod_goDiag(e, re) {
     div.append(div2);
 
     // OPTION Table
-    state = doyodGetBoolOpt('yodOption');
-    var v_valOption = state ? 'Show' : 'Hide';
-    var v_valRT = readSetting('yodRT');
-    mute_target = 'yodMuteLists';
-    var v_valMuted = prettyMuteLists(mute_target, readMuteLists(mute_target));
-    mute_target2 = 'yodMuteListsString';
-    var v_valMuted2 = prettyMuteLists(mute_target2, readMuteLists(mute_target2));
+    var state = doyodGetBoolOpt('yodOption'),
+      v_valOption = state ? 'Show' : 'Hide',
+      v_valRT = readSetting('yodRT'),
+      mute_target = 'yodMuteLists',
+      v_valMuted = prettyMuteLists(mute_target, readMuteLists(mute_target)),
+      mute_target2 = 'yodMuteListsString',
+      v_valMuted2 = prettyMuteLists(mute_target2, readMuteLists(mute_target2));
 
     div.append(
       TWRT.$('<div/>', {id: 'yodOption', class: 'yodLegend'})
@@ -886,8 +918,8 @@ function yod_goDiag(e, re) {
     var str = '\
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
-      w/ <a href="' + yodUpdate['script_url'] + '" target="_blank" title="Script Page">\
-      Traditional ReTweet (v' + yodUpdate['script_version'] + ')</a>';
+      w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
+      Traditional ReTweet (v5.4.4)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -934,10 +966,11 @@ function yod_goDiag(e, re) {
       if (lgnd = elExists('#yod' +  Opts[a])) {
         var elgnd = elExists('legend', lgnd);
         elgnd.click(function() {
-          var lgnd = TWRT.$(this);
-          var el = lgnd.next();
-          var state = el.is(':visible') ? 0 : 1;
-          var sClass = state ? 'Show' : 'Hide';
+          var lgnd = TWRT.$(this),
+            el = lgnd.next(),
+            state = el.is(':visible') ? 0 : 1,
+            sClass = state ? 'Show' : 'Hide';
+
           el.removeClass('yodShow yodHide').addClass('yod' + sClass);
           el.parent().removeClass().addClass('f' + sClass);
           saveSetting(lgnd.parents('.yodLegend').attr('id'), state);
@@ -993,25 +1026,28 @@ function doyodHashtagsClean(target) {
 }
 
 function stripUser(str, wipe, keepBR) {
-  var pattcontent = new RegExp('@?' + TWRT.setting['yodScreenName'], 'gmi');
-  var s = wipe ? '' : TWRT.setting['yodScreenName'];
+  var pattcontent = new RegExp('@?' + TWRT.setting['yodScreenName'], 'gmi'),
+    s = wipe ? '' : TWRT.setting['yodScreenName'];
+
   return ytrim(str.replace(pattcontent, s), keepBR);
 }
 
 function expMentions(str) {
   var x, y = '', a = stripUser(str, true).split(' ');
+
   for (var i in a) { if (x = a[i]) y += ' @' + x.trim(); }
   return y.trim();
 }
 
 function findReply(target) {
   if ((TWRT.$.type(target) === 'string') && target.match(/global/i)) return yodGetTweetBox();
-  if (target = goParent('.yodSpace_ireply', TWRT.$(target)))
+  if (target = goParent('.yodSpace_ireply', TWRT.$(target))) {
     return elExists('[data-target]', target.parent());
+  }
 }
 
-function toReply(el, permaSource) {
-  var actor, source, target, RT, txt = '';
+function toReply(el, permaSource, cpURL) {
+  var actor, source, dumsource, target, RT, txt = '', newtxt = '';
 
   if (!(target = findReply(el))) return;
 
@@ -1020,32 +1056,42 @@ function toReply(el, permaSource) {
   } else {
     var id = target.attr('data-target') || '';
     if (!(id = id.replace(/[^0-9]/g, ''))) return;
-    if (!(source = elExists('[data-tweet-id=' + id + ']'))) return;
+    if (!(source = elExists('[data-tweet-id=' + id + '][data-permalink-path]'))) return;
   }
 
-  if (RT = getRTby(source) || '')
+  if (RT = getRTby(source) || '') {
     RT = (doyodGetBoolOpt('yodRTReply') ? ' ' + TWRT.setting['yodRT'] : '') + ' @' + RT.uname + ': ';
+  }
 
   if (!(actor = source.attr('data-screen-name'))) return;
-  if (!(source = elExists('[class*=js-tweet-text]', source))) return;
+  if (!(newsource = elExists('[class*=js-tweet-text]', source))) return;
 
-  source2 = source.clone();
-  translate_emoji(source2);
+  dumsource = newsource.clone();
+  translate_emoji(dumsource);
 
-  source = source2.eq(0);
+  newsource = dumsource.eq(0);
+
+  newtxt = cpURL ? 'https://twitter.com' + source.attr('data-permalink-path') : newsource.text();
+
+  if (cpURL) {
+    if (mentions = source.attr('data-mentions')) {
+      mentions = mentions.split(/\s/);
+      for (var i in mentions) {
+        newtxt += ' @' + mentions[i];
+      }
+    }
+  }
 
   txt = RT + (doyodGetBoolOpt('yodRTReply') ? ' ' + TWRT.setting['yodRT'] : '') + ' @' + actor;
-  txt += stripUser(': ' + source.text(), false, TWRT.setting['yodKeepBR']);
+  txt += stripUser(': ' + newtxt, false, TWRT.setting['yodKeepBR']);
+  txt = doyodGetBoolOpt('yodAuto140') ? toyodRTFit140(txt) : re_BR(txt);
 
-  if (doyodGetBoolOpt('yodAuto140')) txt = toyodRTFit140(txt);
-  else {
-    txt = re_BR(txt);
-  }
   target.focus().html(txt).change();
 }
 
 function watchReply(e) {
   var el, txa, target, target_box;
+
   if (!(el = TWRT.$(e.currentTarget || e))) return;
   el = el.parent();
 
@@ -1064,14 +1110,14 @@ function watchReply(e) {
   var d_id = txa.attr('id');
   target_box.attr('data-target', d_id);
 
-  var div = TWRT.$('<div/>', {class: 'yodSpace_ireply'});
-  var div2 = TWRT.$('<div/>', {class: 'yodSpace_ireply_wrapper'});
-  var b_attr = {class: 'btn', href: 'javascript:void(0);'};
+  var div = TWRT.$('<div/>', {class: 'yodSpace_ireply'}),
+    div2 = TWRT.$('<div/>', {class: 'yodSpace_ireply_wrapper'}),
+    b_attr = {class: 'btn', href: 'javascript:void(0);'};
 
   // Fit 140 - Cut Text to 140 char length
   var a = TWRT.$('<a/>', b_attr)
   .attr('title', 'Fit 140 chars')
-  .html('Fit 140')
+  .html('140')
   .on('mousedown', function(e) {
     if (!e.button) doyodRTFit140(this);
     return false;
@@ -1080,7 +1126,7 @@ function watchReply(e) {
   // Clean - freeup space
   a = TWRT.$('<a/>', b_attr)
   .attr('title', 'Free Up Space')
-  .html('Clean')
+  .html('[x]')
   .on('mousedown', function(e) {
     if (!e.button) doyodRTClean(this);
     return false;
@@ -1089,7 +1135,7 @@ function watchReply(e) {
   // Clean my username
   a = TWRT.$('<a/>', b_attr)
   .attr('title', 'Clean my username')
-  .html('Clean @')
+  .html('[x] @')
   .on('mousedown', function(e) {
     if (!e.button) doyodMineClean(this);
     return false;
@@ -1098,7 +1144,7 @@ function watchReply(e) {
   // Clean Hashtags
   a = TWRT.$('<a/>', b_attr)
   .attr('title', 'Clean Hashtags')
-  .html('Clean #')
+  .html('[x] #')
   .on('mousedown', function(e) {
     if (!e.button) doyodHashtagsClean(this);
     return false;
@@ -1107,9 +1153,18 @@ function watchReply(e) {
   // Copy Reply
   a = TWRT.$('<a/>', b_attr)
   .attr('title', 'Copy current text reply')
-  .html('Copy Reply')
+  .html('[c] Reply')
   .on('mousedown', function(e) {
     if (!e.button) toReply(this);
+    return false;
+  }).appendTo(div2);
+
+  // Copy URL
+  a = TWRT.$('<a/>', b_attr)
+  .attr('title', 'Copy current URL')
+  .html('[c] URL')
+  .on('mousedown', function(e) {
+    if (!e.button) toReply(this, false, true);
     return false;
   }).appendTo(div2);
 
