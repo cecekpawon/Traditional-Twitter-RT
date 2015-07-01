@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.4
+// @version        5.4.5
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        http://code.jquery.com/jquery-latest.js
@@ -584,7 +584,7 @@ function yod_toStalk(e) {
 
   if (!(screen_name = entry.attr('data-screen-name'))) return;
 
-  document.location.href = "https://twitter.com/search?q=\"" + screen_name + "\"%20%40" + screen_name + "&f=realtime";
+  document.location.href = "https://twitter.com/search?q=\"" + screen_name + "\"%20%40" + screen_name + "&vertical=default&f=tweets";
 }
 
 function yod_rtDiag(e) {
@@ -677,9 +677,9 @@ function yod_BodyBG() {
 function embedMute(elx) {
   var el, s, tw_id, u, popup = elx, id = 'yodMuteButtPop';
 
-  if (!elx) { 
-    elx = TWRT.$('body'); 
-    id = 'yodMuteButt'; 
+  if (!elx) {
+    elx = TWRT.$('body');
+    id = 'yodMuteButt';
   }
 
   if (s = yod_isProfile(elx)) {
@@ -769,9 +769,9 @@ function toCB(id, t, l) {
           break;
       }
     });
- 
+
   if (doyodGetBoolOpt(id)) cb.attr('checked', 'checked');
- 
+
   return TWRT.$('<div/>')
     .append(
       TWRT.$('<label/>', {title: t, for: id, html: l, class: 'checkbox'})
@@ -826,7 +826,7 @@ function yod_goDiag(e, re) {
       div2 = TWRT.$('<div/>', {id: 'yodRTOption'});
 
     // Fit 140 - Cut Text to 140 char length
-    var div3 = TWRT.$('<div/>'), 
+    var div3 = TWRT.$('<div/>'),
     a = TWRT.$('<a/>', {id: 'yodRTFit140', class: 'btn', html: '140', href: 'javascript:void(0);', title: 'Fit 140 chars'})
     .click(function() {
       doyodRTFit140('global');
@@ -919,7 +919,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.4.4)</a>';
+      Traditional ReTweet (v5.4.5)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
