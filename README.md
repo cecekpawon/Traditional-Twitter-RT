@@ -4,7 +4,7 @@
 - Old School RT Functionality for New Twitter, Allows retweeting with Comments
 
 ## Install
-https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
+[Traditional-Twitter-RT.user.js](https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js)
 
 ## Dev
 
