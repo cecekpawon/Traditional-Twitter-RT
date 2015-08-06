@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 *.sh
 tpl/*
 
@@ -27,7 +26,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-=======
-*.sh
-tpl/*
->>>>>>> 2d1d44aa22bd10a78af85c4ab89edd75720b28fa
