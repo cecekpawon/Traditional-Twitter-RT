@@ -53,7 +53,7 @@ span.geo-text{width:auto!important;}\
 div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-color:black!important;display:inline!important;padding:1px 3px!important;}\
 #yodAdvTopEl {color:#66757F;width:10px;margin:10px;cursor:pointer;float:left!important;}\
 #yodAdvTopEl > div {height: 13px;}\
-.btn.yod-rt {float:left!important;}\
+.btn.yod-rt {margin-left:5px;}\
 .tx_muted {margin-top: 10px;width: 100%;}\
 .tx_muted textarea {width: 100%;resize:vertical;}\
 .yodActions {}\
@@ -520,7 +520,8 @@ function parse_instagram(e) {
 }
 
 function yodShowTweetBox(s, c, RT) {
-  doKeyTouch('27');
+  //doKeyTouch('27');
+  TWRT.$(".js-close").click();
 
   var nt, txa, content = TWRT.setting['yodRT'] + ' @' + s + ': ' + c;
   if (RT) content = TWRT.setting['yodRT'] + ' @' + RT + ': ' + content;
@@ -588,16 +589,27 @@ function yod_toStalk(e) {
 }
 
 function yod_rtDiag(e) {
-  var txt, target, elx = TWRT.$(e.currentTarget);
+  var target, elx = TWRT.$(e.currentTarget);
+
   if (elExists('.yod-rt', elx)) return false;
 
-  if (target = elExists('button.cancel-action, div.js-prompt-cancel', elx)) {
-    return target.clone()
+  if (target = elExists('.retweet-action', elx)) {
+    target.clone()
       .html('RT')
       .attr('class', 'btn yod-rt')
       .click(function(){
         if (elx.length) {
           yod_toRT(elx.addClass('yodDone').parent());
+        }
+      })
+      .appendTo(target.parent());
+
+    return target.clone()
+      .html('RT URL')
+      .attr('class', 'btn yod-rt')
+      .click(function(){
+        if (elx.length) {
+          yod_toRT(elx.addClass('yodDone').parent(), true);
         }
       })
       .appendTo(target.parent());
