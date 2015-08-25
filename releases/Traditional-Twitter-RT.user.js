@@ -4,11 +4,11 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.6
+// @version        5.4.7
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        http://code.jquery.com/jquery-latest.js
-// @grant          none
+// @grant          GM_xmlhttpRequest
 // @match          https://twitter.com/*
 // @run-at         document-start
 // ==/UserScript==
@@ -485,19 +485,19 @@ function translate_link(e) {
   el.empty();
 }
 
-function parse_instagram(e) {
+function parse_instagramxx(e) {
   var insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
 
   for (var insta_i in insta_a) {
     var insta_u = insta_a[insta_i];
-    o_debug(insta_u);
     insta_u = "https://api.instagram.com/oembed?url=" + insta_u;
+
     TWRT.$.ajax({
       url: insta_u,
       dataType: "jsonp",
       success: function (data) {
-        o_debug(data);
         var insta_t, insta_tmp;
+
         if (insta_t = data.thumbnail_url) {
           insta_t = insta_t.replace(/https?/i, 'https');
           insta_tmp = new RegExp(/(photos\-.*instagram\.com\/+)/i);
@@ -513,6 +513,33 @@ function parse_instagram(e) {
         }
       },
       error: function () {
+        o_debug("Eekk.. Error retrieving instagram url :(((");
+      }
+    });
+  }
+}
+
+function parse_instagram(e) {
+  var insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
+
+  for (var insta_i in insta_a) {
+    insta_t = insta_a[insta_i] + "/media/?size=t";
+
+    GM_xmlhttpRequest({
+      method: "GET",
+      url: insta_t,
+      onload: function(response) {
+        if ((insta_t = response.finalUrl) && (insta_t = insta_t.match(/\/([0-9]{5,}.*)$/ig))) {
+          insta_t = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn1/" + insta_t[0].replace("/", "");
+          e.append(
+            TWRT.$('<div/>', {class: 'yodInsta parsed'})
+            .append(TWRT.$('<img/>', {src: insta_t}))
+          );
+        } else {
+          o_debug("Eekk.. Error retrieving instagram url :(((");
+        }
+      },
+      onerror: function () {
         o_debug("Eekk.. Error retrieving instagram url :(((");
       }
     });
@@ -931,7 +958,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.4.6)</a>';
+      Traditional ReTweet (v5.4.7)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})

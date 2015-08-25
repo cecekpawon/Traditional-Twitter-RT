@@ -1,9 +1,11 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
-
-5.4.5 (07/02/2015 12:54 AM)
-  - [F] Stalking URL
+5.4.7
+  - [F] XHR policy
 
 5.4.6 (08/07/2015 02:09 AM)
   - [F] Retweet dialog with RT
   - [A] Retweet dialog with RT URL
+
+5.4.5 (07/02/2015 12:54 AM)
+  - [F] Stalking URL
