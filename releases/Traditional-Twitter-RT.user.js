@@ -53,7 +53,7 @@ span.geo-text{width:auto!important;}\
 .debug {border:10px solid red!important;}\
 div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-color:black!important;display:inline!important;padding:1px 3px!important;}\
 #yodAdvTopEl {color:#66757F;width:10px;margin:10px;cursor:pointer;float:left!important;}\
-#yodAdvTopEl > div {height: 13px;}\
+#yodAdvTopEl > div {height: 13px; line-height: 0.8em;}\
 .btn.yod-rt {margin-left:5px;}\
 .tx_muted {margin-top: 10px;width: 100%;}\
 .tx_muted textarea {width: 100%;resize:vertical;}\
