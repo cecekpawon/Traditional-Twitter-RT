@@ -44,6 +44,7 @@ TWRT.css = '\
 #yodRTCopyLeft{font-size:11px; text-align: center;border-top: 1px solid #CCC;}\
 #yodRTOption > div {display: inline-table; margin-right:5px}\
 #yodRT {margin-left: 5px;width:50px!important;padding:0 3px!important}\
+#yodRTCopyReply a:not(:first-child) {margin-left:5px;}\
 span.geo-text{width:auto!important;}\
 .yodSpace_ireply{padding: 5px 0 10px;}\
 .yodSpace_ireply_wrapper{text-align: center;}\
@@ -63,8 +64,9 @@ div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-colo
 .more-tweet-actions .yodInlineButton a {text-align: left!important;margin-left:0!important;}\
 .tweet-actions .yodInlineButton:first-child a {margin-left:0!important}\
 .tweet-actions .yodInlineButton.yodInlineButton_last a {margin-right:10px!important}\
+.yodInsta {text-align: center}\
 .yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
-#yodRTCopyReply a:not(:first-child) {margin-left:5px;}\
+.yod_loading {font-size: x-small; color: white; padding: 3px 10px; background-color: #55ACEE; border-radius: 10px;}\
 ';
 
 function getValue(key, TW) {
@@ -485,40 +487,6 @@ function translate_link(e) {
   el.empty();
 }
 
-function parse_instagramxx(e) {
-  var insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
-
-  for (var insta_i in insta_a) {
-    var insta_u = insta_a[insta_i];
-    insta_u = "https://api.instagram.com/oembed?url=" + insta_u;
-
-    TWRT.$.ajax({
-      url: insta_u,
-      dataType: "jsonp",
-      success: function (data) {
-        var insta_t, insta_tmp;
-
-        if (insta_t = data.thumbnail_url) {
-          insta_t = insta_t.replace(/https?/i, 'https');
-          insta_tmp = new RegExp(/(photos\-.*instagram\.com\/+)/i);
-          if (insta_t.match(insta_tmp)) {
-            insta_t = insta_t
-              .replace(insta_tmp, 'scontent-b.cdninstagram.com')
-              .replace(/\-ak\-/i, '-');
-          }
-          e.append(
-            TWRT.$('<div/>', {class: 'yodInsta parsed'})
-              .append(TWRT.$('<img/>', {src: insta_t}))
-          );
-        }
-      },
-      error: function () {
-        o_debug("Eekk.. Error retrieving instagram url :(((");
-      }
-    });
-  }
-}
-
 function parse_instagram(e) {
   var insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
 
@@ -528,18 +496,25 @@ function parse_instagram(e) {
     GM_xmlhttpRequest({
       method: "GET",
       url: insta_t,
+      onprogress: function() {
+        e.append(TWRT.$('<div/>', {'class': 'yodInsta parsed'})
+          .append(TWRT.$('<span/>', {'class': 'yod_loading', text: '...'}))
+        );
+      },
       onload: function(response) {
         if ((insta_t = response.finalUrl) && (insta_t = insta_t.match(/\/([0-9]{5,}.*)$/ig))) {
           insta_t = "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn1/" + insta_t[0].replace("/", "");
-          e.append(
-            TWRT.$('<div/>', {class: 'yodInsta parsed'})
-            .append(TWRT.$('<img/>', {src: insta_t}))
-          );
+          e
+            .find('.yodInsta')
+            .empty()
+            .append(TWRT.$('<img/>', {src: insta_t}));
         } else {
+          e.find('.yodInsta').remove();
           o_debug("Eekk.. Error retrieving instagram url :(((");
         }
       },
       onerror: function () {
+        e.find('.yodInsta').remove();
         o_debug("Eekk.. Error retrieving instagram url :(((");
       }
     });
