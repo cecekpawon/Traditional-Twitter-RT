@@ -1,6 +1,6 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
-5.4.7
+5.4.7 (08/26/2015 21:11 PM)
   - [F] XHR policy
 
 5.4.6 (08/07/2015 02:09 AM)
