@@ -1,5 +1,8 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.4.8 (09/03/2015 18:11 PM)
+  - [A] Instagram image size for faster loading
+
 5.4.7 (08/26/2015 21:11 PM)
   - [F] XHR policy
 
