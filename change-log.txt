@@ -1,5 +1,8 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.4.9 (09/07/2015 4:55 PM)
+  - [F] Slow RT box
+
 5.4.8 (09/03/2015 18:11 PM)
   - [A] Instagram image size for faster loading
 

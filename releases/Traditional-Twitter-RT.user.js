@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.8
+// @version        5.4.9
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        http://code.jquery.com/jquery-latest.js
@@ -529,9 +529,13 @@ function parse_instagram(e) {
 
 function yodShowTweetBox(s, c, RT) {
   //doKeyTouch('27');
-  TWRT.$('.js-close').click();
+  //TWRT.$('.js-close').click();
 
-  var nt, txa, content = TWRT.setting['yodRT'] + ' @' + s + ': ' + c;
+  var /*body = TWRT.$('body'),*/
+   nt, txa, content = TWRT.setting['yodRT'] + ' @' + s + ': ' + c;
+
+  //if (body.hasClass('modal-enabled')) body.click();
+
   if (RT) content = TWRT.setting['yodRT'] + ' @' + RT + ': ' + content;
 
   if (nt = elExists('#global-new-tweet-button')) {
@@ -949,7 +953,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.4.8)</a>';
+      Traditional ReTweet (v5.4.9)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
