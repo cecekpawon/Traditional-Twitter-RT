@@ -1,5 +1,8 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.5.0 (10/31/2015 02:35 AM)
+  - [F] Photo height
+
 5.4.9 (09/07/2015 4:55 PM)
   - [F] Slow RT box
 

@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.4.9
+// @version        5.5.0
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        http://code.jquery.com/jquery-latest.js
@@ -953,7 +953,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.4.9)</a>';
+      Traditional ReTweet (v5.5.0)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1310,9 +1310,10 @@ function doCSS_dyn() {
 
   if (doyodGetBoolOpt('yodPhotoHeight')) {
     str += '.js-media-container .FlexEmbed:before{padding:0!important;}';
-    str += '.js-media-container [data-card-type="photo"] a,.js-media-container [data-card-type="photo"] div{position:inherit;max-height:inherit!important;height:auto!important;width:100%!important;}';
-    str += '.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
-    str += '.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
+    str += 'div[class*="halfPhoto"],div[class*="quarterPhoto"],div[class*="old-photo"],.js-media-container [data-card-type="photo"] a,.js-media-container [data-card-type="photo"] div{position:inherit;max-height:inherit!important;height:auto!important;width:100%!important;margin: 0 0 5px 0 !important;line-height: 0!important;}';
+    str += 'div[class*="old-photo"] img,.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
+    str += 'div[class*="doublePhoto"],div[class*="triplePhoto"],div[class*="quadPhoto"],.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
+    str += '.OldMedia {max-height:inherit!important;max-width:inherit!important;width:100%!important}';
   }
 
   TWRT.$('#yod_RT_CSS_dyn').html(str);
