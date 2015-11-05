@@ -1,6 +1,6 @@
 ## What
 
-- Traditional Twitter RT (re-mixed) FF + Chrome + Opera 
+- Traditional Twitter RT (re-mixed) FF + Chrome + Opera
 - Old School RT Functionality for New Twitter, Allows retweeting with Comments
 
 ## Install
@@ -33,3 +33,4 @@
 - Hide User custom Background Profile
 - Show Photos in full height
 - Show Instagram Card
+- Change Fave Icon
