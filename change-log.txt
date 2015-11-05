@@ -1,5 +1,8 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.5.1 (11/05/2015 22:37 PM)
+  - [F] Fave Icon inspired by Gizmodo‎
+
 5.5.0 (10/31/2015 02:35 AM)
   - [F] Photo height
 

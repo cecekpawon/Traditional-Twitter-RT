@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.0
+// @version        5.5.1
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        http://code.jquery.com/jquery-latest.js
@@ -18,7 +18,7 @@ TWRT.$ = null;
 TWRT.debug = 0;
 
 // GLOBAL Variable
-TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '' };
+TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '' };
 TWRT.setting = {};
 
 TWRT.css = '\
@@ -41,9 +41,10 @@ TWRT.css = '\
 #yodSpace .checkbox {padding: 5px;}\
 #yodSpace .radio input[type=radio], #yodSpace .checkbox input[type=checkbox] {margin-left: 0;}\
 #yodSpace .btn {padding:2px 5px!important}\
+#yodSpace select, #yodSpace input {margin-left: 5px;}\
 #yodRTCopyLeft{font-size:11px; text-align: center;border-top: 1px solid #CCC;}\
 #yodRTOption > div {display: inline-table; margin-right:5px}\
-.yodInputOpt {margin-left: 5px;width:50px!important;padding:0 3px!important}\
+.yodInputOpt {width:50px!important;padding:0 3px!important}\
 #yodRTCopyReply a:not(:first-child) {margin-left:5px;}\
 span.geo-text{width:auto!important;}\
 .yodSpace_ireply{padding: 5px 0 10px;}\
@@ -789,6 +790,7 @@ function toCB(id, t, l) {
         case 'yodPromoted':
         case 'yodBodyBG':
         case 'yodPhotoHeight':
+        case 'yodFaveIcon':
           doCSS_dyn();
           break;
       }
@@ -897,7 +899,8 @@ function yod_goDiag(e, re) {
       v_valMuted = prettyMuteLists(mute_target, readMuteLists(mute_target)),
       mute_target2 = 'yodMuteListsString',
       v_valMuted2 = prettyMuteLists(mute_target2, readMuteLists(mute_target2)),
-      v_valInstagramThumb = TWRT.setting['yodInstagramThumb'];
+      //v_valInstagramThumb = TWRT.setting['yodInstagramThumb'],
+      v_valFaveEmoji = TWRT.setting['yodFaveIcon'];
 
     div.append(
       TWRT.$('<div/>', {id: 'yodOption', class: 'yodLegend'})
@@ -930,10 +933,24 @@ function yod_goDiag(e, re) {
           .append(toCB('yodPhotoHeight', 'Show Photos in full height', 'Photo Height'))
           .append(toCB('yodInstagram', 'Show Instagram Card', 'Instagram'))
           .append(
-            TWRT.$('<div/>', {'id': 'yodInstagramThumbWrap', title: 'empty(actual size) / square: 150/320/480/640'})
+            TWRT.$('<div/>', {'id': 'yodInstagramThumbWrap', title: 'Instagram Thumb Size'})
             .append(
               TWRT.$('<label/>', {html: 'Instagram Thumb', for: 'yodInstagramThumb'})
-              .append(TWRT.$('<input/>', {id: 'yodInstagramThumb', 'class': 'yodInputOpt', name: 'yodInstagramThumb', type: 'text'}).val(v_valInstagramThumb))
+              .append(
+                TWRT.$('<select/>', {id: 'yodInstagramThumb', name: 'yodInstagramThumb'})
+                  .append(TWRT.$('<option/>', {value: '', text: 'size'}))
+                  .append(TWRT.$('<option/>', {value: '150', text: '150'}))
+                  .append(TWRT.$('<option/>', {value: '320', text: '320'}))
+                  .append(TWRT.$('<option/>', {value: '480', text: '480'}))
+                  .append(TWRT.$('<option/>', {value: '640', text: '640'}))
+                )
+            )
+          )
+          .append(
+            TWRT.$('<div/>', {'id': 'yodFaveIconWrap', title: 'Fave Icon to any text / Emoji replacement'})
+            .append(
+              TWRT.$('<label/>', {html: 'Fave Icon', for: 'yodFaveIcon'})
+              .append(TWRT.$('<input/>', {id: 'yodFaveIcon', 'class': 'yodInputOpt', name: 'yodFaveIcon', type: 'text'}).val(v_valFaveEmoji))
             )
           )
           .append(
@@ -953,7 +970,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.0)</a>';
+      Traditional ReTweet (v5.5.1)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -962,18 +979,23 @@ function yod_goDiag(e, re) {
 
     div.insertAfter(target);
 
-    var tx, Opts = ['MuteLists','MuteListsString','RT','InstagramThumb'];
-    for (var a in Opts) {
-      if (tx = elExists('#yod' +  Opts[a])) {
-        var evts = ['change','paste'];
-        tx.on(evts.join (' '), function(e) {
-          saveSetting(TWRT.$(this).attr('id'), TWRT.$(this).val());
-          if (Opts[a].match(/MuteListsString/i))
-            TWRT.mutesString = readMuteLists('yodMuteListsString', 1, 1).join('|');
-          doCSS_dyn();
-        });
+    div.find('[type="text"], select, textarea').each(function(){
+      var tx = TWRT.$(this),
+        evts = ['change','paste'],
+        txid = TWRT.$(this).attr('id');
+
+      if (tx.is('select')) {
+        tx.val(TWRT.setting[txid]);
       }
-    }
+
+      tx.on(evts.join (' '), function(e) {;
+        saveSetting(txid, tx.val());
+        if (txid.match(/MuteListsString/i)) {
+          TWRT.mutesString = readMuteLists('yodMuteListsString', 1, 1).join('|');
+        }
+        doCSS_dyn();
+      });
+    });
 
     // yodAdvTop Events
     if (yodAdvTop = elExists('#yodAdvTop')) {
@@ -1314,6 +1336,11 @@ function doCSS_dyn() {
     str += 'div[class*="old-photo"] img,.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
     str += 'div[class*="doublePhoto"],div[class*="triplePhoto"],div[class*="quadPhoto"],.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
     str += '.OldMedia {max-height:inherit!important;max-width:inherit!important;width:100%!important}';
+  }
+
+  if (TWRT.setting['yodFaveIcon']) {
+    str += '.HeartAnimationContainer{visibility:hidden;}';
+    str += '.HeartAnimationContainer:after{content:\'' + TWRT.setting['yodFaveIcon'] + '\';visibility:visible;display:block;position:absolute;}';
   }
 
   TWRT.$('#yod_RT_CSS_dyn').html(str);
