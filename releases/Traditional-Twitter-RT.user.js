@@ -4,11 +4,16 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.1
+// @version        5.5.2
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
-// @require        http://code.jquery.com/jquery-latest.js
+// @require        https://code.jquery.com/jquery-latest.js
+// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.js?v=5.5.2
+// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.tw.js?v=5.5.2
+// @resource       yod_RT_CSS_emoji https://github.com/cecekpawon/jquery-emoji-picker/raw/master/css/jquery.emojipicker.css?v=5.5.2
 // @grant          GM_xmlhttpRequest
+// @grant          GM_getResourceText
+// @grant          GM_addStyle
 // @match          https://twitter.com/*
 // @run-at         document-start
 // ==/UserScript==
@@ -18,8 +23,9 @@ TWRT.$ = null;
 TWRT.debug = 0;
 
 // GLOBAL Variable
-TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '' };
+TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '',  yodEmoji: 1};
 TWRT.setting = {};
+TWRT.emoji = {'className': 'yodEmojiWrapper', options: {contenteditable: true, unicode: true, iconSizeSm: true}};
 
 TWRT.css = '\
 #global-actions {float:left!important;}\
@@ -68,6 +74,7 @@ div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-colo
 .yodInsta {text-align: center}\
 .yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
 .yod_loading {font-size: x-small; color: white; padding: 3px 10px; background-color: #55ACEE; border-radius: 10px;}\
+.emojiPickerIconWrap {display:inherit!important}; position:inherit!important;\
 ';
 
 function getValue(key, TW) {
@@ -793,6 +800,9 @@ function toCB(id, t, l) {
         case 'yodFaveIcon':
           doCSS_dyn();
           break;
+        case 'yodEmoji':
+          yod_reload();
+          break;
       }
     });
 
@@ -812,10 +822,18 @@ function yod_goDiag(e, re) {
 
   if (elx[0].tagName) {
     if (!(txa = elExists('textarea[class*=tweet-box-shadow]', elx))) return false;
-    if (!(target = elExists('div[class*=tweet-content]', elx))) return false;
+    if (!(target = elExists('div[class*=simple-tweet], div[class*=tweet-content]', elx))) return false;
+
 
     if (placed = elExists('#yodRTOption')) {
-      rep = elExists('div[class*=simple-tweet]', elx);
+      var target_box = elExists('.tweet-box', target);
+
+      if (doyodGetBoolOpt('yodEmoji') && target_box && !target_box.hasClass(TWRT.emoji.className)) {
+        target_box.addClass(TWRT.emoji.className);
+        target_box.emojiPicker(TWRT.emoji.options);
+      }
+
+      rep = elExists('div[class*=original-tweet]', elx);
 
       if (el = elExists('#yodRTCopyReply')) el.addClass('yodHide');
       if (TWRT.$(rep).html()) {
@@ -931,6 +949,7 @@ function yod_goDiag(e, re) {
           .append(toCB('yodKeepBR', 'Keep extra linebreak (new empty line space)', 'Keep Linebreak'))
           .append(toCB('yodBodyBG', 'Keep User custom Background Profile', 'BG Profile'))
           .append(toCB('yodPhotoHeight', 'Show Photos in full height', 'Photo Height'))
+          .append(toCB('yodEmoji', 'Emoji Picker', 'Emoji'))
           .append(toCB('yodInstagram', 'Show Instagram Card', 'Instagram'))
           .append(
             TWRT.$('<div/>', {'id': 'yodInstagramThumbWrap', title: 'Instagram Thumb Size'})
@@ -970,7 +989,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.1)</a>';
+      Traditional ReTweet (v5.5.2)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1225,15 +1244,29 @@ function watchReply(e) {
   }).appendTo(div2);
 
   target.append(div.append(div2));
+
+  if (doyodGetBoolOpt('yodEmoji') && !target_box.hasClass(TWRT.emoji.className)) {
+    target_box.addClass(TWRT.emoji.className);
+    target_box.emojiPicker(TWRT.emoji.options);
+  }
+}
+
+function home_tweet(e) {
+  var home_box = elExists('#tweet-box-home-timeline');
+  if (home_box && !home_box.hasClass(TWRT.emoji.className)) {
+    if (doyodGetBoolOpt('yodEmoji')) {
+      home_box.addClass(TWRT.emoji.className);
+      home_box.emojiPicker(TWRT.emoji.options);
+    }
+  }
 }
 
 function yodInlineReply(e) {
-  if (e.className.match(/permalink/i)) {
-    if (e = goParent('.permalink-tweet-container', TWRT.$(e))) {
-      watchReply(e);
-    }
+  if (e.className.match(/permalink/i) && (e = goParent('.permalink-tweet-container', TWRT.$(e)))) {
+    watchReply(e);
+  } else {
+    e.addEventListener('DOMNodeInserted', function(e){watchReply(e);} , true);
   }
-  else e.addEventListener('DOMNodeInserted', function(e){watchReply(e);} , true);
 }
 
 function expandNewTweet() {
@@ -1283,6 +1316,8 @@ function doCSS() {
   if (elExists('#yod_RT_CSS')) return;
   TWRT.$('<style/>', {id: 'yod_RT_CSS', text: TWRT.css}).appendTo('head');
   TWRT.$('<style/>', {id: 'yod_RT_CSS_dyn'}).appendTo('head');
+
+  GM_addStyle(GM_getResourceText("yod_RT_CSS_emoji"));
 }
 
 function doCSS_dyn() {
@@ -1355,6 +1390,7 @@ function restart() {
   initSettings();
   initDump();
   embedMute();
+  home_tweet();
   yod_render(1);
 }
 
@@ -1405,7 +1441,7 @@ function doStuff() {
           } else {
           }
         } else {
-          if (/LI/.test(elmt.tagName) && elExists('.simple-tweet', TWRT.$(elmt))) {
+          if (/LI/.test(elmt.tagName) && elExists('.simple-tweet, .tweet-content', TWRT.$(elmt))) {
             yod_render();
           }
         }

@@ -1,5 +1,8 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.5.2 (11/07/2015 11:23 AM)
+  - [A] Emoji Picker
+
 5.5.1 (11/05/2015 22:37 PM)
   - [A] Fave Icon inspired by Gizmodo‎
 
