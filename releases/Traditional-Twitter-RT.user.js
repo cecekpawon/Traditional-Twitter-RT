@@ -4,13 +4,13 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.2
+// @version        5.5.3
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.js?v=5.5.2
-// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.tw.js?v=5.5.2
-// @resource       yod_RT_CSS_emoji https://github.com/cecekpawon/jquery-emoji-picker/raw/master/css/jquery.emojipicker.css?v=5.5.2
+// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.js?v=5.5.3
+// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.tw.js?v=5.5.3
+// @resource       yod_RT_CSS_emoji https://github.com/cecekpawon/jquery-emoji-picker/raw/master/css/jquery.emojipicker.css?v=5.5.3
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -74,7 +74,8 @@ div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-colo
 .yodInsta {text-align: center}\
 .yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
 .yod_loading {font-size: x-small; color: white; padding: 3px 10px; background-color: #55ACEE; border-radius: 10px;}\
-.emojiPickerIconWrap {display:inherit!important}; position:inherit!important;\
+.emojiPickerIconWrap {display:inherit!important}\
+.emojiPickerIcon {border-radius: 0 2px 0 2px;top: 1px!important; right: 1px!important;z-index:666}\
 ';
 
 function getValue(key, TW) {
@@ -989,7 +990,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.2)</a>';
+      Traditional ReTweet (v5.5.3)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
