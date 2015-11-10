@@ -4,13 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.3
+// @version        5.5.4
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.js?v=5.5.3
-// @require        https://github.com/cecekpawon/jquery-emoji-picker/raw/master/js/jquery.emojipicker.tw.js?v=5.5.3
-// @resource       yod_RT_CSS_emoji https://github.com/cecekpawon/jquery-emoji-picker/raw/master/css/jquery.emojipicker.css?v=5.5.3
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -25,7 +24,7 @@ TWRT.debug = 0;
 // GLOBAL Variable
 TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodGeo: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '',  yodEmoji: 1};
 TWRT.setting = {};
-TWRT.emoji = {'className': 'yodEmojiWrapper', options: {contenteditable: true, unicode: true, iconSizeSm: true}};
+TWRT.emoji = { 'className': 'yodEmojiWrapper', json: '' };
 
 TWRT.css = '\
 #global-actions {float:left!important;}\
@@ -74,8 +73,8 @@ div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-colo
 .yodInsta {text-align: center}\
 .yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
 .yod_loading {font-size: x-small; color: white; padding: 3px 10px; background-color: #55ACEE; border-radius: 10px;}\
-.emojiPickerIconWrap {display:inherit!important}\
-.emojiPickerIcon {border-radius: 0 2px 0 2px;top: 1px!important; right: 1px!important;z-index:666}\
+.textcomplete-item .yod_emoji_item { margin-right: 10px; min-width: 20px; display: inline-block; }\
+.textcomplete-item.active, .textcomplete-item.active a:hover { background-color: #e5e5e5!important; }\
 ';
 
 function getValue(key, TW) {
@@ -829,9 +828,9 @@ function yod_goDiag(e, re) {
     if (placed = elExists('#yodRTOption')) {
       var target_box = elExists('.tweet-box', target);
 
-      if (doyodGetBoolOpt('yodEmoji') && target_box && !target_box.hasClass(TWRT.emoji.className)) {
+      if (TWRT.emoji.json && target_box && !target_box.hasClass(TWRT.emoji.className)) {
         target_box.addClass(TWRT.emoji.className);
-        target_box.emojiPicker(TWRT.emoji.options);
+        doEmoji(target_box);
       }
 
       rep = elExists('div[class*=original-tweet]', elx);
@@ -950,7 +949,7 @@ function yod_goDiag(e, re) {
           .append(toCB('yodKeepBR', 'Keep extra linebreak (new empty line space)', 'Keep Linebreak'))
           .append(toCB('yodBodyBG', 'Keep User custom Background Profile', 'BG Profile'))
           .append(toCB('yodPhotoHeight', 'Show Photos in full height', 'Photo Height'))
-          .append(toCB('yodEmoji', 'Emoji Picker', 'Emoji'))
+          .append(toCB('yodEmoji', 'Emoji Typeahead', 'Emoji'))
           .append(toCB('yodInstagram', 'Show Instagram Card', 'Instagram'))
           .append(
             TWRT.$('<div/>', {'id': 'yodInstagramThumbWrap', title: 'Instagram Thumb Size'})
@@ -990,7 +989,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.3)</a>';
+      Traditional ReTweet (v5.5.4)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1246,18 +1245,18 @@ function watchReply(e) {
 
   target.append(div.append(div2));
 
-  if (doyodGetBoolOpt('yodEmoji') && !target_box.hasClass(TWRT.emoji.className)) {
+  if (TWRT.emoji.json && !target_box.hasClass(TWRT.emoji.className)) {
     target_box.addClass(TWRT.emoji.className);
-    target_box.emojiPicker(TWRT.emoji.options);
+    doEmoji(target_box);
   }
 }
 
 function home_tweet(e) {
   var home_box = elExists('#tweet-box-home-timeline');
   if (home_box && !home_box.hasClass(TWRT.emoji.className)) {
-    if (doyodGetBoolOpt('yodEmoji')) {
+    if (TWRT.emoji.json) {
       home_box.addClass(TWRT.emoji.className);
-      home_box.emojiPicker(TWRT.emoji.options);
+      doEmoji(home_box);
     }
   }
 }
@@ -1313,12 +1312,67 @@ function doAdvTop() {
   }
 }
 
+function toUnicode(code) {
+  var codes = code.split('-').map(function(value, index) {
+    return parseInt(value, 16);
+  });
+  return String.fromCodePoint.apply(null, codes);
+}
+
+function doEmoji(el) {
+  $(el).textcomplete([
+    { // emoji strategy
+      match: /\B:([\-+\w]{2,})$/,
+      search: function (term, callback) {
+        callback($.map(TWRT.emoji.json, function (emoji) {
+          var re = new RegExp(term, 'i'),
+            name = emoji.shortname.replace(/:/g, ''),
+            aliases = emoji.aliases.replace(/:/g, '');
+          if ((name && name.match(re)) || (aliases && aliases.match(re))) {
+            return emoji;
+          }
+          var keywords = emoji.keywords.split(' ');
+          for (var i in keywords) {
+            if (keywords[i].match(re)) {
+              return emoji;
+            }
+          }
+        }));
+      },
+      template: function (emoji) {
+        return '<span class="yod_emoji_item">' + toUnicode(emoji.unicode) + '</span>' + emoji.shortname;
+      },
+      replace: function (emoji) {
+        return toUnicode(emoji.unicode);
+      },
+      index: 1
+    }
+  ], {
+      zIndex: 9999
+    /*
+      appendTo:  appendToElement, // $('body')
+      height:    heightNumber,    // undefined
+      maxCount:  maxCountNumber,  // 10
+      placement: placementStr,    // ''
+      header:    headerStrOrFunc, // undefined
+      footer:    footerStrOrFunc, // undefined
+      zIndex:    zIndexStr,       // '100'
+      debounce:  debounceNumber,  // undefined
+      adapter:   adapterClass,    // undefined
+      className: classNameStr,    // ''
+      onKeydown: onKeydownFunc,   // undefined
+      noResultMessage: noResultMessageStrOrFunc  // undefined
+    */
+  });
+}
+
 function doCSS() {
   if (elExists('#yod_RT_CSS')) return;
   TWRT.$('<style/>', {id: 'yod_RT_CSS', text: TWRT.css}).appendTo('head');
   TWRT.$('<style/>', {id: 'yod_RT_CSS_dyn'}).appendTo('head');
-
-  GM_addStyle(GM_getResourceText("yod_RT_CSS_emoji"));
+  if (doyodGetBoolOpt('yodEmoji')) {
+    TWRT.emoji.json = JSON.parse(GM_getResourceText("yod_RT_JSON_emoji"));
+  }
 }
 
 function doCSS_dyn() {

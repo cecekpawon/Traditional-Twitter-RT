@@ -16,6 +16,8 @@
 - [Firefox](https://www.mozilla.org/firefox) + [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) / [Scriptish](https://addons.mozilla.org/en-US/firefox/addon/scriptish/)
 - [Opera](http://www.opera.com/) 15  / latests, need [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo)
 
+![ScreenShot](https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/assets/emoji.gif)
+
 ## Features
 
 - Traditional RT with text/URL
@@ -35,3 +37,9 @@
 - Show Instagram Card
 - Change Fave Icon
 - jQuery Emoji Picker @a-sane [mods](https://github.com/wedgies/jquery-emoji-picker)
+
+## Lib Use
+
+- [jQuery](https://jquery.com/)
+- [jQuery textcomplete](https://github.com/yuku-t/jquery-textcomplete)
+- [Emoji One](https://github.com/Ranks/emojione)

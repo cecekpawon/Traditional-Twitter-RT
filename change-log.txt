@@ -1,5 +1,8 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.5.4 (11/10/2015 20:10 PM)
+  - [F] Change Emoji picker to Typeahead
+
 5.5.3 (11/07/2015 15:08 PM)
   - [F] Element focus
 
