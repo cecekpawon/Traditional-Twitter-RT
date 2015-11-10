@@ -4,7 +4,7 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.4
+// @version        5.5.5
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
@@ -164,10 +164,14 @@ function removeEmptyArrayElements(arr) {
   return arr.filter(function(elem){return elem !== null && elem !== ''});
 }
 
+function fixRegexExp(str) {
+  return str.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+}
+
 function yodInArray(id, strArray) {
   if (!id) return false;
   if (typeof strArray !== 'string') strArray = yodUnique(strArray).join(',');
-  var pattcontent = new RegExp(',?\s?(.*' + id + '+)\s?,?');
+  var pattcontent = new RegExp(',?\s?(.*' + fixRegexExp(id) + '+)\s?,?');
   return strArray.match(pattcontent);
 }
 
@@ -353,7 +357,7 @@ function yod_render(newtweet) {
     if (!owntweet && newtweet && mutesy/* && is_Home*/ && data_type.match(/tweet/i)) {
       txt = entry.find('.js-tweet-text').eq(0).text();
       if (txt) {
-        pattmutesy = new RegExp('\s?' + mutesy + '\s?', 'gmi');
+        pattmutesy = new RegExp('\s?' + fixRegexExp(mutesy) + '\s?', 'gmi');
         if (txt.match(pattmutesy)) {
           delContent(entry, 1);
         }
@@ -989,7 +993,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.4)</a>';
+      Traditional ReTweet (v5.5.5)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1101,7 +1105,7 @@ function doyodHashtagsClean(target) {
 }
 
 function stripUser(str, wipe, keepBR) {
-  var pattcontent = new RegExp('@?' + TWRT.setting['yodScreenName'], 'gmi'),
+  var pattcontent = new RegExp('@?' + fixRegexExp(TWRT.setting['yodScreenName']), 'gmi'),
     s = wipe ? '' : TWRT.setting['yodScreenName'];
 
   return ytrim(str.replace(pattcontent, s), keepBR);
@@ -1325,7 +1329,7 @@ function doEmoji(el) {
       match: /\B:([\-+\w]{2,})$/,
       search: function (term, callback) {
         callback($.map(TWRT.emoji.json, function (emoji) {
-          var re = new RegExp(term, 'i'),
+          var re = new RegExp(fixRegexExp(term), 'i'),
             name = emoji.shortname.replace(/:/g, ''),
             aliases = emoji.aliases.replace(/:/g, '');
           if ((name && name.match(re)) || (aliases && aliases.match(re))) {
