@@ -36,7 +36,7 @@
 - Show Photos in full height
 - Show Instagram Card
 - Change Fave Icon
-- jQuery Emoji Picker @a-sane [mods](https://github.com/wedgies/jquery-emoji-picker)
+- jQuery Emoji
 
 ## Lib Use
 
