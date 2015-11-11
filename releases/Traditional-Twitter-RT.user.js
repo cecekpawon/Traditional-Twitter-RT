@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.5
+// @version        5.5.6
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.6
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.6
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -73,8 +73,10 @@ div[id^=yod_tw_id] {color:red!important;font-size:11px!important;background-colo
 .yodInsta {text-align: center}\
 .yodInsta img {margin: 10px 0 0!important; border-radius:5px!important;width:100%!important;height:auto!important;}\
 .yod_loading {font-size: x-small; color: white; padding: 3px 10px; background-color: #55ACEE; border-radius: 10px;}\
+.textcomplete-dropdown{max-height: 120px; overflow-y: scroll;}\
 .textcomplete-item .yod_emoji_item { margin-right: 10px; min-width: 20px; display: inline-block; }\
 .textcomplete-item.active, .textcomplete-item.active a:hover { background-color: #e5e5e5!important; }\
+.textcomplete-item img {max-width: 16px; vertical-align: middle;}\
 ';
 
 function getValue(key, TW) {
@@ -993,7 +995,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.5)</a>';
+      Traditional ReTweet (v5.5.6)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1320,6 +1322,7 @@ function toUnicode(code) {
   var codes = code.split('-').map(function(value, index) {
     return parseInt(value, 16);
   });
+
   return String.fromCodePoint.apply(null, codes);
 }
 
@@ -1344,7 +1347,13 @@ function doEmoji(el) {
         }));
       },
       template: function (emoji) {
-        return '<span class="yod_emoji_item">' + toUnicode(emoji.unicode) + '</span>' + emoji.shortname;
+        //return '<span class="yod_emoji_item">' + toUnicode(emoji.unicode) + '</span>' + emoji.shortname;
+        var emoji_domain = "https://abs.twimg.com/emoji/v1/72x72/"
+        //domain = "https://twemoji.maxcdn.com/16x16/"
+        return '<span class="yod_emoji_item">' +
+            '<img src="' + emoji_domain + emoji.unicode.toLowerCase() + '.png"/>' +
+          '</span>' +
+          emoji.shortname.replace(/:/g, '');
       },
       replace: function (emoji) {
         return toUnicode(emoji.unicode);
@@ -1352,7 +1361,8 @@ function doEmoji(el) {
       index: 1
     }
   ], {
-      zIndex: 9999
+      zIndex: 9999,
+      maxCount: 100
     /*
       appendTo:  appendToElement, // $('body')
       height:    heightNumber,    // undefined

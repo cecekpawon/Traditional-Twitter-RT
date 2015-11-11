@@ -1,5 +1,9 @@
 Mark: [F] Fix | [A] Add | [R] Remove
 
+5.5.6 (11/11/2015 15:12 PM)
+  - [F] Remove unsupported Twitter emojies
+  - [F] Add emojies preview as image
+
 5.5.5 (11/10/2015 22:53 PM)
   - [F] Regexp
 
