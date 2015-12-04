@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.6
+// @version        5.5.7
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.6
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.6
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.7
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.7
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -505,7 +505,7 @@ function translate_link(e) {
 function parse_instagram(e) {
   var
     insta_size = TWRT.setting['yodInstagramThumb'] ? '/s' + TWRT.setting['yodInstagramThumb'] + 'x' + TWRT.setting['yodInstagramThumb'] : '',
-    insta_a = e.text().trim().match(/https?:\/\/(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig),
+    insta_a = e.text().trim().match(/https?:\/\/(www\.)?(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig),
     insta_error = function() {
       o_debug('Eekk.. Error retrieving instagram url :(((');
     };
@@ -995,7 +995,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.6)</a>';
+      Traditional ReTweet (v5.5.7)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
