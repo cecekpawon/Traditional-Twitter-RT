@@ -18,6 +18,10 @@
 
 ![ScreenShot](https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/assets/emoji.gif)
 
+## Note
+
+- Clear Greasemonkey caches ```<app-path>/<profile-folder>/gm_scripts/Traditional_Twitter_RT/``` [wiki](http://kb.mozillazine.org/Profile_folder_-_Firefox)
+
 ## Features
 
 - Traditional RT with text/URL

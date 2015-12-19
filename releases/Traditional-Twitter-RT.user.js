@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.7
+// @version        5.5.8
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.7
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.7
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.8
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.8
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -834,10 +834,7 @@ function yod_goDiag(e, re) {
     if (placed = elExists('#yodRTOption')) {
       var target_box = elExists('.tweet-box', target);
 
-      if (TWRT.emoji.json && target_box && !target_box.hasClass(TWRT.emoji.className)) {
-        target_box.addClass(TWRT.emoji.className);
-        doEmoji(target_box);
-      }
+      doEmoji(target_box);
 
       rep = elExists('div[class*=original-tweet]', elx);
 
@@ -995,7 +992,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.7)</a>';
+      Traditional ReTweet (v5.5.8)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1251,25 +1248,17 @@ function watchReply(e) {
 
   target.append(div.append(div2));
 
-  if (TWRT.emoji.json && !target_box.hasClass(TWRT.emoji.className)) {
-    target_box.addClass(TWRT.emoji.className);
-    doEmoji(target_box);
-  }
+  doEmoji(target_box);
 }
 
 function home_tweet(e) {
   var home_box = elExists('#tweet-box-home-timeline');
-  if (home_box && !home_box.hasClass(TWRT.emoji.className)) {
-    if (TWRT.emoji.json) {
-      home_box.addClass(TWRT.emoji.className);
-      doEmoji(home_box);
-    }
-  }
+  doEmoji(home_box);
 }
 
 function yodInlineReply(e) {
-  if (e.className.match(/permalink/i) && (e = goParent('.permalink-tweet-container', TWRT.$(e)))) {
-    watchReply(e);
+  if (e.className.match(/(permalink|tweetbox)/i) && (el = goParent('.permalink-tweet-container', TWRT.$(e)))) {
+    watchReply(el);
   } else {
     e.addEventListener('DOMNodeInserted', function(e){watchReply(e);} , true);
   }
@@ -1327,11 +1316,14 @@ function toUnicode(code) {
 }
 
 function doEmoji(el) {
-  $(el).textcomplete([
+  if (!el || !TWRT.emoji.json || el.hasClass(TWRT.emoji.className)) return;
+  el.addClass(TWRT.emoji.className);
+
+  TWRT.$(el).textcomplete([
     { // emoji strategy
       match: /\B:([\-+\w]{2,})$/,
       search: function (term, callback) {
-        callback($.map(TWRT.emoji.json, function (emoji) {
+        callback(TWRT.$.map(TWRT.emoji.json, function (emoji) {
           var re = new RegExp(fixRegexExp(term), 'i'),
             name = emoji.shortname.replace(/:/g, ''),
             aliases = emoji.aliases.replace(/:/g, '');
@@ -1348,7 +1340,7 @@ function doEmoji(el) {
       },
       template: function (emoji) {
         //return '<span class="yod_emoji_item">' + toUnicode(emoji.unicode) + '</span>' + emoji.shortname;
-        var emoji_domain = "https://abs.twimg.com/emoji/v1/72x72/"
+        var emoji_domain = "//abs.twimg.com/emoji/v1/72x72/"
         //domain = "https://twemoji.maxcdn.com/16x16/"
         return '<span class="yod_emoji_item">' +
             '<img src="' + emoji_domain + emoji.unicode.toLowerCase() + '.png"/>' +
@@ -1435,16 +1427,17 @@ function doCSS_dyn() {
   }
 
   if (doyodGetBoolOpt('yodPhotoHeight')) {
-    str += '.js-media-container .FlexEmbed:before{padding:0!important;}';
-    str += 'div[class*="halfPhoto"],div[class*="quarterPhoto"],div[class*="old-photo"],.js-media-container [data-card-type="photo"] a,.js-media-container [data-card-type="photo"] div{position:inherit;max-height:inherit!important;height:auto!important;width:100%!important;margin: 0 0 5px 0 !important;line-height: 0!important;}';
-    str += 'div[class*="old-photo"] img,.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
-    str += 'div[class*="doublePhoto"],div[class*="triplePhoto"],div[class*="quadPhoto"],.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
-    str += '.OldMedia {max-height:inherit!important;max-width:inherit!important;width:100%!important}';
+    //str += '.js-media-container .FlexEmbed:before{padding:0!important;}';
+    //str += 'div[class*="halfPhoto"],div[class*="quarterPhoto"],div[class*="old-photo"],.js-media-container [data-card-type="photo"] a,.js-media-container [data-card-type="photo"] div{position:inherit;max-height:inherit!important;height:auto!important;width:100%!important;margin: 0 0 5px 0 !important;line-height: 0!important;}';
+    //str += 'div[class*="old-photo"] img,.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
+    //str += 'div[class*="doublePhoto"],div[class*="triplePhoto"],div[class*="quadPhoto"],.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
+    //str += '.OldMedia {max-height:inherit!important;max-width:inherit!important;width:100%!important}';
+    str += '.AdaptiveMedia {overflow: inherit!important; vertical-align: inherit;width: 100%; max-width: inherit; max-height: inherit; height: auto;} .AdaptiveMedia [class*="AdaptiveMedia-"], .AdaptiveMedia img {overflow: inherit!important; position: inherit; left: inherit!important; top: inherit!important; width: 100%; height: auto!important; display: inherit; border-radius: 5px;} .AdaptiveMedia [class*="AdaptiveMedia-"]:not(:last-child) {margin-bottom: 3px;} [class*="AdaptiveMedia-badge"] { width: auto!important;position: absolute!important} [class*="AdaptiveMedia-video"] {display: initial!important;position: initial!important}';
   }
 
   if (TWRT.setting['yodFaveIcon']) {
-    str += '.HeartAnimationContainer{visibility:hidden;}';
-    str += '.HeartAnimationContainer:after{content:\'' + TWRT.setting['yodFaveIcon'] + '\';visibility:visible;display:block;position:absolute;}';
+    str += '.HeartAnimationContainer{visibility:hidden;overflow:inherit;}';
+    str += '.HeartAnimationContainer:after{content:\'' + TWRT.setting['yodFaveIcon'] + '\';visibility:visible;}';
   }
 
   TWRT.$('#yod_RT_CSS_dyn').html(str);
@@ -1495,8 +1488,15 @@ function doStuff() {
           else if (
             (/(stream-item|content|Grid|new-tweets-bar)/.test(cname))
           ) {
-            expandNewTweet();
-            yod_render(1);
+            if (/(permalink)/.test(cname)) {
+              doCSS_dyn();
+              yodInlineReply(elmt);
+              yod_render();
+            } else {
+              expandNewTweet();
+              yod_render(1);
+            }
+
           } else if (
             (/(original|permalink|stream-container)/.test(cname))
           ) {
@@ -1510,8 +1510,14 @@ function doStuff() {
           } else {
           }
         } else {
-          if (/LI/.test(elmt.tagName) && elExists('.simple-tweet, .tweet-content', TWRT.$(elmt))) {
-            yod_render();
+          switch(elmt.tagName) {
+            case 'LI':
+              if (elExists('.simple-tweet, .tweet-content', TWRT.$(elmt))) {
+                yod_render();
+              }
+              break;
+            case 'DIV':
+              break;
           }
         }
       } catch (e) {}
