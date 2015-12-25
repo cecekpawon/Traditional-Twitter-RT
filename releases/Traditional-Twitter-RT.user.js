@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.8
+// @version        5.5.9
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.8
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.8
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.9
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.9
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -992,7 +992,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.8)</a>';
+      Traditional ReTweet (v5.5.9)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1180,7 +1180,8 @@ function watchReply(e) {
 
   var y, permalink = false;
   if (y = goParent('[class^=permalink]', target)) permalink = true;
-  else if (!(y = goParent('[class^=expan]', target))) return;
+  //else if (!(y = goParent('[class^=expan]', target))) return;
+  else if (!(y = goParent('[class*=expan]', target))) return;
 
   var p = y.clone();
   if (!elExists('[class*=js-tweet-text]', p)) return;
@@ -1257,7 +1258,7 @@ function home_tweet(e) {
 }
 
 function yodInlineReply(e) {
-  if (e.className.match(/(permalink|tweetbox)/i) && (el = goParent('.permalink-tweet-container', TWRT.$(e)))) {
+  if (e.className.match(/(permalink)/i) && (el = goParent('.permalink-tweet-container', TWRT.$(e)))) {
     watchReply(el);
   } else {
     e.addEventListener('DOMNodeInserted', function(e){watchReply(e);} , true);
@@ -1427,12 +1428,7 @@ function doCSS_dyn() {
   }
 
   if (doyodGetBoolOpt('yodPhotoHeight')) {
-    //str += '.js-media-container .FlexEmbed:before{padding:0!important;}';
-    //str += 'div[class*="halfPhoto"],div[class*="quarterPhoto"],div[class*="old-photo"],.js-media-container [data-card-type="photo"] a,.js-media-container [data-card-type="photo"] div{position:inherit;max-height:inherit!important;height:auto!important;width:100%!important;margin: 0 0 5px 0 !important;line-height: 0!important;}';
-    //str += 'div[class*="old-photo"] img,.js-media-container [data-card-type="photo"] img,.multi-photos img,.FlexEmbed img{margin-top:0!important;width:100%!important;height:auto!important;max-height:inherit!important;position:inherit!important;left:0!important;border-radius:5px!important;}';
-    //str += 'div[class*="doublePhoto"],div[class*="triplePhoto"],div[class*="quadPhoto"],.multi-photos{height:auto!important;}.multi-photos .multi-photo{height:auto!important;width:100%!important;margin:3px 0!important;}';
-    //str += '.OldMedia {max-height:inherit!important;max-width:inherit!important;width:100%!important}';
-    str += '.AdaptiveMedia {overflow: inherit!important; vertical-align: inherit;width: 100%; max-width: inherit; max-height: inherit; height: auto;} .AdaptiveMedia [class*="AdaptiveMedia-"], .AdaptiveMedia img {overflow: inherit!important; position: inherit; left: inherit!important; top: inherit!important; width: 100%; height: auto!important; display: inherit; border-radius: 5px;} .AdaptiveMedia [class*="AdaptiveMedia-"]:not(:last-child) {margin-bottom: 3px;} [class*="AdaptiveMedia-badge"] { width: auto!important;position: absolute!important} [class*="AdaptiveMedia-video"] {display: initial!important;position: initial!important}';
+    str += '.AdaptiveMedia{width:100% !important;max-width:inherit !important;max-height:initial !important;height:auto !important}.AdaptiveMedia-container > div{width:100% !important;height:auto !important;font-size:1em !important}.AdaptiveMedia-container > div > div{overflow:inherit !important;width:100% !important;height:auto !important;max-height:inherit !important}.AdaptiveMedia-photoContainer img,.AdaptiveMedia-videoPreview img,video{width:100% !important;position:initial !important;border-radius:5px !important}';
   }
 
   if (TWRT.setting['yodFaveIcon']) {
@@ -1498,13 +1494,13 @@ function doStuff() {
             }
 
           } else if (
-            (/(original|permalink|stream-container)/.test(cname))
+            (/(original|stream-container|inline-reply)/.test(cname))
           ) {
             doCSS_dyn();
             yodInlineReply(elmt);
             yod_render();
           } else if (
-            (/go-to-profile/.test(cname))
+            (/(go-to-profile|ThreadedConversation)/.test(cname))
           ) {
             yod_render();
           } else {
