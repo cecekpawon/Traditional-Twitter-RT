@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.5.9
+// @version        5.6.0
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.5.9
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.5.9
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.0
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.0
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -466,13 +466,22 @@ function translate_link(e) {
     var decoded = deEntity(unescape(e.text().trim()));
 
     // collect links
-    el.find('a[data-expanded-url]').each(function() {
-      var link = TWRT.$(this),
-        a1 = link.attr('data-ultimate-url') || '',
-        a2 = link.attr('data-expanded-url') || '';
+    el.find('a').each(function() {
+      var link = TWRT.$(this);
+      if (link.attr("data-expanded-url")) {
+        var
+          a1 = link.attr('data-ultimate-url') || '',
+          a2 = link.attr('data-expanded-url') || '';
 
-      if (longURL = a1 || a2) {
-        link.html(longURL).attr({href: longURL});
+        if (longURL = a1 || a2) {
+          link.html(longURL).attr({href: longURL});
+          mod++;
+        }
+      }
+
+      if (link.attr("data-pre-embedded") && link.hasClass("u-hidden")) {
+        //$(document.createTextNode(' ')).insertBefore(link);
+        link.html(' ' + link.html() + ' ');
         mod++;
       }
 
@@ -992,7 +1001,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.5.9)</a>';
+      Traditional ReTweet (v5.6.0)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
