@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.6.1
+// @version        5.6.2
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.1
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.1
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.2
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.2
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -839,7 +839,6 @@ function yod_goDiag(e, re) {
     if (!(txa = elExists('textarea[class*=tweet-box-shadow]', elx))) return false;
     if (!(target = elExists('div[class*=simple-tweet], div[class*=tweet-content]', elx))) return false;
 
-
     if (placed = elExists('#yodRTOption')) {
       var target_box = elExists('.tweet-box', target);
 
@@ -1001,7 +1000,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.6.1)</a>';
+      Traditional ReTweet (v5.6.2)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1501,7 +1500,6 @@ function doStuff() {
               expandNewTweet();
               yod_render(1);
             }
-
           } else if (
             (/(original|stream-container|inline-reply)/.test(cname))
           ) {
@@ -1509,7 +1507,7 @@ function doStuff() {
             yodInlineReply(elmt);
             yod_render();
           } else if (
-            (/(go-to-profile|ThreadedConversation)/.test(cname))
+            (/(go-to-profile|ThreadedConversation|permalink-container)/.test(cname))
           ) {
             yod_render();
           } else {
@@ -1522,6 +1520,9 @@ function doStuff() {
               }
               break;
             case 'DIV':
+              //if (elExists('.permalink-tweet', TWRT.$('.PermalinkOverlay-modal'))) {
+              //  yod_render();
+              //}
               break;
           }
         }
