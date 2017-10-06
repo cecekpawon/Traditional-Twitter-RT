@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.6.3
+// @version        5.6.4
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.3
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.3
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.4
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.4
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -22,7 +22,7 @@ TWRT.$ = null;
 TWRT.debug = 0;
 
 // GLOBAL Variable
-TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '',  yodEmoji: 1};
+TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActVideo: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '',  yodEmoji: 1};
 TWRT.setting = {};
 TWRT.emoji = { 'className': 'yodEmojiWrapper', json: '' };
 
@@ -320,6 +320,14 @@ function getFB(el) {
   return str;
 }
 
+function getVideo(el) {
+  var vid = el.find('video');
+
+  if (vid.length) {
+    window.open(vid.attr('src'));
+  }
+}
+
 function getRTby(entry) {
   var a = {};
   if (
@@ -372,10 +380,17 @@ function yod_render(newtweet) {
       entry.addClass('yodLinkParsed');
 
       if (data_item_id = yodfixInt(entry.attr('data-item-id'))) {
-
         el = entry.find('.ProfileTweet-action .dropdown li').first();
+        vidwrap = entry.find('.PlayableMedia-player');
 
         var yodActions_class = 'yodActions';
+
+        if (vidwrap.length) {
+          TWRT.$('<li/>', {class: 'yodInlineButton yodActVideo' + yodActions_class})
+            .append(
+              TWRT.$('<a/>', {id: 'Video_' + data_item_id, title: 'Video URL', role: 'button', html: 'Video URL', href: '#'})
+            ).insertBefore(el);
+        }
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodActFB' + yodActions_class})
           .append(
@@ -396,6 +411,11 @@ function yod_render(newtweet) {
           .append(
             TWRT.$('<a/>', {id: 'STALKING_' + data_item_id, title: 'Stalking', role: 'button', html: 'Stalking', href: '#'})
           ).insertBefore(el);
+
+        TWRT.$(document).on('click', 'a#Video_' + data_item_id, function() {
+          getVideo(entry);
+          return false;
+        });
 
         TWRT.$(document).on('click', 'a#FB_' + data_item_id, function() {
           window.open(this.href);
@@ -808,6 +828,7 @@ function toCB(id, t, l) {
         case 'yodGIFAva':
         case 'yodActRT':
         case 'yodActFB':
+        case 'yodActVideo':
         case 'yodActStalking':
         case 'yodPromoted':
         case 'yodBodyBG':
@@ -955,6 +976,7 @@ function yod_goDiag(e, re) {
           .append(toCB('yodRTReply', 'Copy Reply with RT prefix', 'Copy RT'))
           .append(toCB('yodActRT', 'RT Button', 'Action RT'))
           .append(toCB('yodActFB', 'FB Button', 'Action FB'))
+          .append(toCB('yodActVideo', 'Video Button', 'Action Video'))
           .append(toCB('yodActStalking', 'Stalking Button', 'Action Stalking'))
           .append(toCB('yodPromoted', 'Twitter Promoted', 'Promoted'))
           .append(toCB('yodKeepBR', 'Keep extra linebreak (new empty line space)', 'Keep Linebreak'))
@@ -1000,7 +1022,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.6.3)</a>';
+      Traditional ReTweet (v5.6.4)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1417,6 +1439,10 @@ function doCSS_dyn() {
 
   if (!doyodGetBoolOpt('yodActRT')) {
     str += '.yodActRT{display:none!important}';
+  }
+
+  if (!doyodGetBoolOpt('yodActVideo')) {
+    str += '.yodActVideo{display:none!important}';
   }
 
   if (!doyodGetBoolOpt('yodActFB')) {
