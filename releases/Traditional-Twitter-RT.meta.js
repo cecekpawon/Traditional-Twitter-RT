@@ -1,4 +1,4 @@
 // ==UserScript==
 // @name        Traditional Twitter RT
-// @version     5.6.4
+// @version     5.6.5
 // ==/UserScript==
