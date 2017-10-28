@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.6.5
+// @version        5.6.6
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.5
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.5
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.6
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.6
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -22,7 +22,7 @@ TWRT.$ = null;
 TWRT.debug = 0;
 
 // GLOBAL Variable
-TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActVideo: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: '', yodFaveIcon: '',  yodEmoji: 1};
+TWRT.setting_def = { yodOption: 0, yodRT: 'RT', yodAdvTop: 1, yodGeo: 1, yodAuto140: 0, yodExpand: 0, yodMute: 1, yodMuteLists: '', yodMuteListsString: '', yodScreenName: '', yodGIFAva: 1, yodRTReply: 1, yodActRT: 1, yodActFB: 1, yodActVideo: 1, yodActStalking: 1, yodPromoted: 1, yodKeepBR: 1, yodBodyBG: 1, yodPhotoHeight: 0, yodInstagram: 0, yodInstagramThumb: 'thumb', yodFaveIcon: '',  yodEmoji: 1};
 TWRT.setting = {};
 TWRT.emoji = { 'className': 'yodEmojiWrapper', json: '' };
 
@@ -535,42 +535,71 @@ function translate_link(e) {
   el.empty();
 }
 
-function parse_instagram(e) {
-  var
-    insta_size = TWRT.setting['yodInstagramThumb'] ? '/s' + TWRT.setting['yodInstagramThumb'] + 'x' + TWRT.setting['yodInstagramThumb'] : '',
-    insta_a = e.text().trim().match(/https?:\/\/(www\.)?(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig),
-    insta_error = function() {
-      o_debug('Eekk.. Error retrieving instagram url :(((');
-    };
+function insta_error() {
+  o_debug('Eekk.. Error retrieving instagram url :(((');
+}
 
+function append_instagram(e, data) {
+  var binary = "";
+      responseText = data;
+      responseTextLen = responseText.length;
 
-  for (var insta_i in insta_a) {
-    insta_t = insta_a[insta_i] + '/media/?size=t';
+  for ( i = 0; i < responseTextLen; i++ ) {
+    binary += String.fromCharCode(responseText.charCodeAt(i) & 255)
+  }
 
-    GM_xmlhttpRequest({
-      method: 'GET',
-      url: insta_t,
-      /* duplicate image!!!
-      onprogress: function() {
-        e.append(TWRT.$('<div/>', {'class': 'yodInsta parsed'})
-          .append(TWRT.$('<span/>', {'class': 'yod_loading', text: '...'}))
-        );
-      },
-      */
-      onload: function(response) {
-        if ((insta_t = response.finalUrl) && (insta_t = insta_t.match(/\/([0-9]{5,}.*)$/ig))) {
-          insta_t = 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn1' + insta_size + insta_t[0];
-          e.append(TWRT.$('<div/>', {'class': 'yodInsta parsed'})
-            .append(TWRT.$('<img/>', {src: insta_t}))
-          );
-        } else {
-          insta_error();
-        }
-      },
-      onerror: function () {
+  e.append(TWRT.$('<div/>', {'class': 'yodInsta parsed'})
+    .append(TWRT.$('<img/>', {src: "data:image/jpeg;base64," + btoa(binary)}))
+  );
+}
+
+function instagram_getbin(e, url) {
+  GM_xmlhttpRequest({
+    method: 'GET',
+    url: url,
+    onload: function(response) {
+      if (responseText = response.responseText.trim()) {
+        append_instagram(e, response.responseText);
+      } else {
         insta_error();
       }
-    });
+    },
+    overrideMimeType: "text/plain; charset=x-user-defined",
+    onerror: function () {
+      insta_error();
+    }
+  });
+}
+
+function parse_instagram_api(e, insta_u) {
+  GM_xmlhttpRequest({
+    method: 'GET',
+    url: insta_u,
+    onload: function(response) {
+      var obj = IsJsonString(response.responseText);
+      if (obj && obj.thumbnail_url) {
+        instagram_getbin(e, obj.thumbnail_url);
+      } else {
+        insta_error();
+      }
+    },
+    onerror: function () {
+      insta_error();
+    }
+  });
+}
+
+function parse_instagram(e) {
+  var insta_a = e.text().trim().match(/https?:\/\/(www\.)?(instagr\.am|instagram\.com)\/p\/([^\/\s]+)/ig);
+
+  for (var insta_i in insta_a) {
+    if (TWRT.setting['yodInstagramThumb'].match(/^thumb$/)) {
+      insta_u = insta_a[insta_i] + '/media/'; //?size=t (t|m|l) def: m
+      instagram_getbin (e, insta_u);
+    } else {
+      insta_u = 'https://api.instagram.com/oembed/?url=' + insta_a[insta_i];
+      parse_instagram_api (e, insta_u);
+    }
   }
 }
 
@@ -953,7 +982,6 @@ function yod_goDiag(e, re) {
       v_valMuted = prettyMuteLists(mute_target, readMuteLists(mute_target)),
       mute_target2 = 'yodMuteListsString',
       v_valMuted2 = prettyMuteLists(mute_target2, readMuteLists(mute_target2)),
-      //v_valInstagramThumb = TWRT.setting['yodInstagramThumb'],
       v_valFaveEmoji = TWRT.setting['yodFaveIcon'];
 
     div.append(
@@ -994,11 +1022,8 @@ function yod_goDiag(e, re) {
               TWRT.$('<label/>', {html: 'Instagram Thumb', for: 'yodInstagramThumb'})
               .append(
                 TWRT.$('<select/>', {id: 'yodInstagramThumb', name: 'yodInstagramThumb'})
-                  .append(TWRT.$('<option/>', {value: '', text: 'size'}))
-                  .append(TWRT.$('<option/>', {value: '150', text: '150'}))
-                  .append(TWRT.$('<option/>', {value: '320', text: '320'}))
-                  .append(TWRT.$('<option/>', {value: '480', text: '480'}))
-                  .append(TWRT.$('<option/>', {value: '640', text: '640'}))
+                  .append(TWRT.$('<option/>', {value: 'thumb', text: 'Thumb'}))
+                  .append(TWRT.$('<option/>', {value: 'api', text: 'API (slower)'}))
                 )
             )
           )
@@ -1026,7 +1051,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.6.5)</a>';
+      Traditional ReTweet (v5.6.6)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1314,8 +1339,8 @@ function initDump() {
 }
 
 function initSettings() {
-  if (!yodInArray(TWRT.setting['yodInstagramThumb'], '150,320,480,640')) {
-    TWRT.setting['yodInstagramThumb'] = '';
+  if (!yodInArray(TWRT.setting['yodInstagramThumb'], 'thumb,api')) {
+    TWRT.setting['yodInstagramThumb'] = TWRT.setting_def['yodInstagramThumb'];
   }
 }
 
