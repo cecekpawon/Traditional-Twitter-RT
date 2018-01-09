@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.6.6
+// @version        5.6.7
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.6
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.6
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.7
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.7
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -619,7 +619,7 @@ function yodShowTweetBox(s, c, RT) {
 
     toClick(nt);
 
-    if (txa = elExists('#global-tweet-dialog .tweet-box:visible, #tweet_dialog .twitter-anywhere-tweet-box-editor:visible')) {
+    if (txa = elExists('#Tweetstorm-tweet-box-0 .tweet-box:visible, #global-tweet-dialog .tweet-box:visible, #tweet_dialog .twitter-anywhere-tweet-box-editor:visible')) {
       txa.html(content).focus().change();
     }
   }
@@ -1051,7 +1051,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.6.6)</a>';
+      Traditional ReTweet (v5.6.7)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
@@ -1532,7 +1532,8 @@ function doStuff() {
 
     starter();
 
-    TWRT.$('div[id*=tweet-dialog]').bind('DOMNodeInserted', yod_rtDiag);
+    //TWRT.$('div[id*=tweet-dialog]').bind('DOMNodeInserted', yod_rtDiag);
+    TWRT.$('div[id*=Tweetstorm-tweet-box]').bind('DOMNodeInserted', yod_rtDiag);
     TWRT.$('div[id*=profile_popup]').bind('DOMNodeInserted', yod_profile_popupDiag);
     TWRT.$('div[class*=media-grid]').bind('DOMNodeInserted', yod_gallery);
 
