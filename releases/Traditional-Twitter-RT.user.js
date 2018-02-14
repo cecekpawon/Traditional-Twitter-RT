@@ -4,12 +4,12 @@
 // @namespace      http://blog.thrsh.net
 // @author         cecekpawon (THRSH)
 // @description    Old School RT Functionality for New Twitter, Allows retweeting with Comments
-// @version        5.6.7
+// @version        5.6.8
 // @updateURL      https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.meta.js
 // @downloadURL    https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/releases/Traditional-Twitter-RT.user.js
 // @require        https://code.jquery.com/jquery-latest.js
-// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.7
-// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.7
+// @require        https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/jquery.textcomplete.min.js?v=5.6.8
+// @resource       yod_RT_JSON_emoji https://github.com/cecekpawon/Traditional-Twitter-RT/raw/master/lib/emoji_strategy.json?v=5.6.8
 // @grant          GM_xmlhttpRequest
 // @grant          GM_getResourceText
 // @grant          GM_addStyle
@@ -388,55 +388,56 @@ function yod_render(newtweet) {
         vidwrap = entry.find('.PlayableMedia-player');
 
         var yodActions_class = 'yodActions';
+        var yodDropdownLink_class = 'dropdown-link';
 
         if (vidwrap.length) {
           TWRT.$('<li/>', {class: 'yodInlineButton yodActVideo' + yodActions_class})
             .append(
-              TWRT.$('<a/>', {id: 'Video_' + data_item_id, title: 'Video URL', role: 'button', html: 'Video URL', href: '#'})
+              TWRT.$('<button/>', {id: 'Video_' + data_item_id, class: yodDropdownLink_class, title: 'Video URL', role: 'button', html: 'Video URL'})
             ).insertBefore(el);
         }
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodActFB' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'FB_' + data_item_id, title: 'Share to facebook', role: 'button', html: 'FB Share', href: getFB(entry), target: '_blank'})
+            TWRT.$('<button/>', {id: 'FB_' + data_item_id, class: yodDropdownLink_class, title: 'Share to facebook', role: 'button', html: 'FB Share', 'data-href': getFB(entry)})
           ).insertBefore(el);
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodActRT' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'RT_' + data_item_id, title: 'Trad RT', role: 'button', html: 'Trad RT', href: '#'})
+            TWRT.$('<button/>', {id: 'RT_' + data_item_id, class: yodDropdownLink_class, title: 'Trad RT', role: 'button', html: 'Trad RT'})
           ).insertBefore(el);
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodActRT' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'RT_URL_' + data_item_id, title: 'RT with URL', role: 'button', html: 'RT URL', href: '#'})
+            TWRT.$('<button/>', {id: 'RT_URL_' + data_item_id, class: yodDropdownLink_class, title: 'RT with URL', role: 'button', html: 'RT URL'})
           ).insertBefore(el);
 
         TWRT.$('<li/>', {class: 'yodInlineButton yodInlineButton_last yodActStalking' + yodActions_class})
           .append(
-            TWRT.$('<a/>', {id: 'STALKING_' + data_item_id, title: 'Stalking', role: 'button', html: 'Stalking', href: '#'})
+            TWRT.$('<button/>', {id: 'STALKING_' + data_item_id, class: yodDropdownLink_class, title: 'Stalking', role: 'button', html: 'Stalking'})
           ).insertBefore(el);
 
-        TWRT.$(document).on('click', 'a#Video_' + data_item_id, function() {
+        TWRT.$(document).on('click', 'button#Video_' + data_item_id, function() {
           getVideo(entry);
           return false;
         });
 
-        TWRT.$(document).on('click', 'a#FB_' + data_item_id, function() {
-          window.open(this.href);
+        TWRT.$(document).on('click', 'button#FB_' + data_item_id, function() {
+          window.open(TWRT.$(this).attr('data-href'));
           return false;
         });
 
-        TWRT.$(document).on('click', 'a#RT_' + data_item_id, function() {
+        TWRT.$(document).on('click', 'button#RT_' + data_item_id, function() {
           yod_toRT(TWRT.$(this));
           return false;
         });
 
-        TWRT.$(document).on('click', 'a#RT_URL_' + data_item_id, function() {
+        TWRT.$(document).on('click', 'button#RT_URL_' + data_item_id, function() {
           yod_toRT(TWRT.$(this), true);
           return false;
         });
 
-        TWRT.$(document).on('click', 'a#STALKING_' + data_item_id, function() {
+        TWRT.$(document).on('click', 'button#STALKING_' + data_item_id, function() {
           yod_toStalk(TWRT.$(this));
           return false;
         });
@@ -1051,7 +1052,7 @@ function yod_goDiag(e, re) {
       Done by <a href="http://blog.thrsh.net" target="_blank" title="Dev Blog">Cecek Pawon 2010</a> \
       (<a href="http://twitter.com/cecekpawon" title="Dev Twitter">@cecekpawon</a>) \
       w/ <a href="https://github.com/cecekpawon/Traditional-Twitter-RT" target="_blank" title="Script Page">\
-      Traditional ReTweet (v5.6.7)</a>';
+      Traditional ReTweet (v5.6.8)</a>';
 
     div.append(
       TWRT.$('<div/>', {id: 'yodRTCopyLeft'})
